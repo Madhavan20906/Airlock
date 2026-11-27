@@ -1,0 +1,60 @@
+{
+  "parameters": {
+    "tandem_policy_v1": {
+      "defaultValue": {
+        "value": ""
+      },
+      "description": "Tandem routing policy JSON (packages/spec/tandem-policy.schema.json). Empty = built-in conservative default. Export from Studio > Policy.",
+      "valueType": "JSON"
+    },
+    "kill_switch_cloud": {
+      "defaultValue": {
+        "value": "false"
+      },
+      "description": "Stop all cloud calls (local-only, sensitive content held).",
+      "valueType": "BOOLEAN"
+    },
+    "kill_switch_local": {
+      "defaultValue": {
+        "value": "false"
+      },
+      "description": "Stop all on-device calls.",
+      "valueType": "BOOLEAN"
+    },
+    "probe_max_cloud_calls": {
+      "defaultValue": {
+        "value": "60"
+      },
+      "description": "Hard cap on cloud calls per probe run (free-tier protection).",
+      "valueType": "NUMBER"
+    },
+    "atlas_enabled": {
+      "defaultValue": {
+        "value": "true"
+      },
+      "description": "Allow Hybrid Atlas contributions and charts.",
+      "valueType": "BOOLEAN"
+    },
+    "price_in_per_mtok": {
+      "defaultValue": {
+        "value": "0.1"
+      },
+      "description": "ESTIMATE constant: USD per 1M input tokens for the savings simulator. Check the official Gemini API pricing page.",
+      "valueType": "NUMBER"
+    },
+    "price_out_per_mtok": {
+      "defaultValue": {
+        "value": "0.4"
+      },
+      "description": "ESTIMATE constant: USD per 1M output tokens for the savings simulator.",
+      "valueType": "NUMBER"
+    },
+    "min_chrome_major": {
+      "defaultValue": {
+        "value": "139"
+      },
+      "description": "Minimum Chrome major version for on-device hybrid inference (Firebase docs: 139+).",
+      "valueType": "NUMBER"
+    }
+  }
+}
