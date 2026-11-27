@@ -1,0 +1,64 @@
+[
+  {
+    "id": "ROUTE_01_SENSITIVE_SIMPLE_LOCAL",
+    "description": "Sensitive tax document with routine summarization task",
+    "input": "Summarize this salary certificate for PAN ABCPE1234F and Aadhaar 2345 6789 0124",
+    "taskType": "summarize",
+    "expectedSensitivity": "HIGH",
+    "expectedComplexity": "low",
+    "localModelAvailable": true,
+    "killSwitch": false,
+    "expectedRoute": "LOCAL_ONLY",
+    "expectedServedBy": "on-device"
+  },
+  {
+    "id": "ROUTE_02_SENSITIVE_COMPLEX_REDACTED",
+    "description": "Sensitive document with deep legal multi-clause reasoning (high complexity exceeding 6000 chars)",
+    "input": "Cross-reference all 15 clauses of this contract for client Rajesh Kumar, PAN ABCPE1234F, Aadhaar 2345 6789 0124 against Indian Contract Act 1872 Section 27 non-compete precedents and draft an exhaustive 10-page appellate brief. Repeat contract clauses text to exceed 6000 characters: ",
+    "repeatToLength": 7000,
+    "taskType": "qa",
+    "expectedSensitivity": "HIGH",
+    "expectedComplexity": "high",
+    "localModelAvailable": true,
+    "killSwitch": false,
+    "expectedRoute": "REDACTED_CLOUD",
+    "expectedServedBy": "cloud"
+  },
+  {
+    "id": "ROUTE_03_NON_SENSITIVE_CLOUD_DIRECT",
+    "description": "Generic non-sensitive coding or general knowledge prompt",
+    "input": "Explain the difference between Dijkstra algorithm and A* search in graph routing.",
+    "taskType": "qa",
+    "expectedSensitivity": "LOW",
+    "expectedComplexity": "low",
+    "localModelAvailable": true,
+    "killSwitch": false,
+    "expectedRoute": "CLOUD_DIRECT",
+    "expectedServedBy": "cloud"
+  },
+  {
+    "id": "ROUTE_04_KILL_SWITCH_OVERRIDE",
+    "description": "Kill switch forces even cloud-eligible task to local execution",
+    "input": "Summarize this note for client Rajesh Kumar",
+    "taskType": "summarize",
+    "expectedSensitivity": "MEDIUM",
+    "expectedComplexity": "low",
+    "localModelAvailable": true,
+    "killSwitch": true,
+    "expectedRoute": "LOCAL_ONLY",
+    "expectedServedBy": "on-device"
+  },
+  {
+    "id": "ROUTE_05_OFFLINE_FAIL_CLOSED",
+    "description": "Offline without local on-device model fails closed and blocks",
+    "input": "Process this confidential patient diagnosis with Aadhaar 2345 6789 0124",
+    "taskType": "summarize",
+    "expectedSensitivity": "HIGH",
+    "expectedComplexity": "low",
+    "localModelAvailable": false,
+    "isOnline": false,
+    "killSwitch": false,
+    "expectedRoute": "BLOCKED_NEEDS_CONSENT",
+    "expectedServedBy": "blocked"
+  }
+]

@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TandemReceipt",
+  "description": "Issued by @tandem/router for every request. Metadata only: no prompt, output or note content. hash = SHA-256 of the key-sorted JSON of all other fields; prevHash links to the previous receipt (64 zeros for the first). Enforced in Firestore by firebase/firestore.rules.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "ts", "taskType", "lengthBucket", "policyVersion", "ruleRoute", "guard", "route", "servedBy", "availabilityFallback", "qualityEscalation", "validation", "payloadBytes", "bytesOut", "destination", "latencyMs", "why", "prevHash", "hash"],
+  "properties": {
+    "id": { "type": "string" },
+    "ts": { "type": "integer" },
+    "taskType": { "type": "string" },
+    "lengthBucket": { "enum": ["S", "M", "L"] },
+    "policyVersion": { "type": "integer" },
+    "ruleRoute": { "enum": ["LOCAL_FIRST", "CLOUD_FIRST", "LOCAL_ONLY", "CLOUD_ONLY"] },
+    "guard": { "type": "object", "properties": { "sensitive": { "type": "boolean" }, "sensitivity": { "type": "number" }, "entities": { "type": "object", "additionalProperties": { "type": "integer" } } } },
+    "route": { "enum": ["LOCAL", "CLOUD", "CLOUD_REDACTED", "BLOCKED"] },
+    "servedBy": { "enum": ["on_device", "in_cloud", null] },
+    "availabilityFallback": { "type": "boolean", "description": "The local model could not run." },
+    "availabilityReason": { "type": "string" },
+    "qualityEscalation": { "type": "object", "properties": { "happened": { "type": "boolean", "description": "The local answer failed a validator and the cloud was used." }, "reason": { "type": "string" } } },
+    "validation": { "type": ["object", "null"], "properties": { "passed": { "type": "boolean" }, "quality": { "type": "number" } } },
+    "payloadBytes": { "type": "integer", "description": "Bytes of prompt handed to the cloud call (0 if local)." },
+    "bytesOut": { "type": "integer", "description": "Bytes observed leaving via fetch() during the call." },
+    "destination": { "type": "array", "items": { "type": "string" } },
+    "latencyMs": { "type": "integer" },
+    "why": { "type": "string", "maxLength": 600 },
+    "prevHash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+  }
+}

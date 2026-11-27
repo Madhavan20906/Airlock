@@ -1,0 +1,72 @@
+[
+  {
+    "id": "DET_01_VERHOEFF_VALID",
+    "text": "My Aadhaar card is 2345 6789 0124 verified successfully.",
+    "expected": [
+      { "type": "AADHAAR", "value": "2345 6789 0124" }
+    ]
+  },
+  {
+    "id": "DET_02_VERHOEFF_INVALID_CHECKSUM",
+    "text": "Order confirmation number is 2345 6789 0123 (not a valid Aadhaar).",
+    "expected": []
+  },
+  {
+    "id": "DET_03_PAN_VALID",
+    "text": "Taxpayer PAN: ABCPE1234F registered with IT department.",
+    "expected": [
+      { "type": "PAN", "value": "ABCPE1234F" }
+    ]
+  },
+  {
+    "id": "DET_04_GSTIN_VALID",
+    "text": "GST invoice 27AABCU9603R1ZM from Maharashtra tax circle.",
+    "expected": [
+      { "type": "GSTIN", "value": "27AABCU9603R1ZM" }
+    ]
+  },
+  {
+    "id": "DET_05_IFSC_AND_ACCOUNT",
+    "text": "NEFT to HDFC Bank IFSC HDFC0000123 account number 50100412345678",
+    "expected": [
+      { "type": "ACCOUNT", "value": "50100412345678" }
+    ]
+  },
+  {
+    "id": "DET_06_UPI_VPA",
+    "text": "Send payment to rahul.sharma@okhdfcbank or 9876543210@paytm",
+    "expected": [
+      { "type": "UPI", "value": "rahul.sharma@okhdfcbank" },
+      { "type": "UPI", "value": "9876543210@paytm" }
+    ]
+  },
+  {
+    "id": "DET_07_PHONE_AND_EMAIL",
+    "text": "Contact Dr. Priya at +91 98765 43210 or priya.patel@hospital.org",
+    "expected": [
+      { "type": "PHONE", "value": "+91 98765 43210" },
+      { "type": "EMAIL", "value": "priya.patel@hospital.org" }
+    ]
+  },
+  {
+    "id": "DET_08_DRIVING_LICENCE",
+    "text": "State transport driving licence DL-1420110012345",
+    "expected": [
+      { "type": "DL", "value": "DL-1420110012345" }
+    ]
+  },
+  {
+    "id": "DET_09_VOTER_ID_EPIC",
+    "text": "Election Commission EPIC Voter ID: ABC1234567",
+    "expected": [
+      { "type": "VOTER_ID", "value": "ABC1234567" }
+    ]
+  },
+  {
+    "id": "DET_10_PASSPORT_INDIA",
+    "text": "Indian passport travel document Z1234567",
+    "expected": [
+      { "type": "PASSPORT", "value": "Z1234567" }
+    ]
+  }
+]

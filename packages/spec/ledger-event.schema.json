@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TandemGuardLedgerEvent",
+  "description": "Cryptographically verifiable, hash-chained audit record. Strictly metadata-only (zero content/prompts).",
+  "type": "object",
+  "required": [
+    "id",
+    "index",
+    "previousHash",
+    "hash",
+    "timestamp",
+    "route",
+    "reason",
+    "classifierMode",
+    "sensitivityScore",
+    "entityCounts",
+    "complexity",
+    "latencyMs",
+    "servedBy"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique event identifier, e.g. ev_1732600000000_abc123"
+    },
+    "index": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "0-based monotonic index in the hash chain"
+    },
+    "previousHash": {
+      "type": "string",
+      "description": "SHA-256 (or cryptographic hash) of the previous ledger event; 64 zeros for genesis"
+    },
+    "hash": {
+      "type": "string",
+      "description": "Hash of this block: hash(index|timestamp|previousHash|route|entityCounts|latencyMs|servedBy|policyVersion)"
+    },
+    "timestamp": {
+      "type": "integer",
+      "description": "Unix timestamp in milliseconds"
+    },
+    "route": {
+      "type": "string",
+      "enum": [
+        "LOCAL_ONLY",
+        "REDACTED_CLOUD",
+        "CLOUD_DIRECT",
+        "BLOCKED_NEEDS_CONSENT"
+      ]
+    },
+    "reason": {
+      "type": "string",
+      "description": "Deterministic reason explanation for the route decision"
+    },
+    "classifierMode": {
+      "type": "string",
+      "description": "Classification strategy utilized (e.g. 'hybrid', 'deterministic-only')"
+    },
+    "sensitivityScore": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0
+    },
+    "entityCounts": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "description": "Summary count of detected entities by category (e.g. {'PAN': 1, 'AADHAAR': 1})"
+    },
+    "complexity": {
+      "type": "string",
+      "enum": ["low", "medium", "high"]
+    },
+    "latencyMs": {
+      "type": "number",
+      "minimum": 0
+    },
+    "servedBy": {
+      "type": "string",
+      "enum": ["on-device", "cloud", "blocked"]
+    },
+    "policyVersion": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Remote Config policy version active when routing decision was committed"
+    },
+    "placeholdersRestored": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "userConsentRequired": {
+      "type": "boolean"
+    }
+  },
+  "additionalProperties": false
+}

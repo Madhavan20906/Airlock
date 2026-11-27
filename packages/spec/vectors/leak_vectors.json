@@ -1,0 +1,72 @@
+[
+  {
+    "id": "LEAK_01_AADHAAR_VERHOEFF",
+    "description": "Standard valid Aadhaar with Verhoeff checksum",
+    "input": "Patient Aadhaar number is 2345 6789 0124 for health scheme verification.",
+    "mustNotLeak": ["2345 6789 0124", "234567890124"],
+    "expectedEntities": ["AADHAAR"]
+  },
+  {
+    "id": "LEAK_02_PAN_STANDARD",
+    "description": "Standard Indian PAN card number",
+    "input": "Kindly file the ITR for PAN ABCPE1234F under Section 139.",
+    "mustNotLeak": ["ABCPE1234F"],
+    "expectedEntities": ["PAN"]
+  },
+  {
+    "id": "LEAK_03_BANK_ACCOUNT_UNANCHORED",
+    "description": "Indian Core Banking unanchored account number in transfer memo",
+    "input": "Payment of 50000 transferred to my number is 50100412345678 IFSC HDFC0000123",
+    "mustNotLeak": ["50100412345678", "HDFC0000123"],
+    "expectedEntities": ["ACCOUNT", "BANK"]
+  },
+  {
+    "id": "LEAK_04_UPI_ID_VPA",
+    "description": "Virtual Private Address / UPI ID",
+    "input": "Send the consultation fee to doctor.clinic@okaxis or cashier@upi",
+    "mustNotLeak": ["doctor.clinic@okaxis", "cashier@upi"],
+    "expectedEntities": ["UPI"]
+  },
+  {
+    "id": "LEAK_05_INDIC_DIGITS_DEVANAGARI",
+    "description": "Aadhaar encoded in Devanagari numerals with zero-width characters",
+    "input": "आधार कार्ड संख्या: २३४५ ६७८९ ०१२४",
+    "mustNotLeak": ["२३४५ ६७८९ ०१२४", "2345 6789 0124"],
+    "expectedEntities": ["AADHAAR"]
+  },
+  {
+    "id": "LEAK_06_ZERO_WIDTH_JOINER_PAN",
+    "description": "PAN with embedded zero-width non-joiners to evade naive regex",
+    "input": "PAN is A\u200CB\u200CC\u200CP\u200CE\u200C1\u200C2\u200C3\u200C4\u200CF",
+    "mustNotLeak": ["ABCPE1234F"],
+    "expectedEntities": ["PAN"]
+  },
+  {
+    "id": "LEAK_07_GSTIN_TAX_INVOICE",
+    "description": "GSTIN Tax invoice with state code and checksum",
+    "input": "Vendor GSTIN: 27AABCU9603R1ZM issued at Mumbai branch.",
+    "mustNotLeak": ["27AABCU9603R1ZM"],
+    "expectedEntities": ["GSTIN"]
+  },
+  {
+    "id": "LEAK_08_PHONE_INDIAN_VARIANTS",
+    "description": "Indian mobile numbers with +91, 0, or spaced format",
+    "input": "Call emergency support on +91 98765 43210 or 09876543210 immediately.",
+    "mustNotLeak": ["98765 43210", "9876543210", "+91 98765 43210"],
+    "expectedEntities": ["PHONE"]
+  },
+  {
+    "id": "LEAK_09_DRIVING_LICENCE",
+    "description": "Indian Driving Licence format",
+    "input": "Driver DL: DL-1420110012345 verified by RTO authority.",
+    "mustNotLeak": ["DL-1420110012345", "DL1420110012345"],
+    "expectedEntities": ["DL"]
+  },
+  {
+    "id": "LEAK_10_PASSPORT_INDIA",
+    "description": "Indian Passport 8-character identifier",
+    "input": "Traveler passport identifier: Z1234567 issued at Regional Passport Office.",
+    "mustNotLeak": ["Z1234567"],
+    "expectedEntities": ["PASSPORT"]
+  }
+]

@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TandemGuardSensitivityPolicy",
+  "description": "Tandem Guard sensitivity scoring policy (entity weights and thresholds) used by the Guard benchmarks. The router policy is tandem-policy.schema.json.",
+  "type": "object",
+  "required": [
+    "version",
+    "thresholds",
+    "entityWeights",
+    "complexity",
+    "mode",
+    "killSwitchLocalOnly",
+    "enabledDetectors"
+  ],
+  "properties": {
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Monotonically increasing policy version"
+    },
+    "name": {
+      "type": "string",
+      "description": "Optional human-readable policy pack name (e.g. Healthcare, Legal, Finance/Tax, Student, Freelancer)"
+    },
+    "thresholds": {
+      "type": "object",
+      "required": ["localOnly", "hardBlock"],
+      "properties": {
+        "localOnly": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "description": "Sensitivity score above which processing must remain LOCAL_ONLY (if simple) or REDACTED_CLOUD (if complex)"
+        },
+        "hardBlock": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "description": "Sensitivity threshold where transmission is fail-closed BLOCKED_NEEDS_CONSENT if on-device model unavailable"
+        }
+      }
+    },
+    "entityWeights": {
+      "type": "object",
+      "description": "Sensitivity weighting per detected entity type [0.0 - 1.0]",
+      "properties": {
+        "AADHAAR": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "PAN": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "ACCOUNT": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "CARD": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "PERSON": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "PHONE": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "EMAIL": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "ADDRESS": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "MEDICAL": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "ORG": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "GSTIN": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "PASSPORT": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "VOTER_ID": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "DL": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "UPI": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "VEHICLE": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "DOB": { "type": "number", "minimum": 0.0, "maximum": 1.0 }
+      },
+      "additionalProperties": {
+        "type": "number",
+        "minimum": 0.0,
+        "maximum": 1.0
+      }
+    },
+    "complexity": {
+      "type": "object",
+      "required": ["highCharCount"],
+      "properties": {
+        "highCharCount": {
+          "type": "integer",
+          "minimum": 100,
+          "description": "Character threshold classifying task as high complexity"
+        }
+      }
+    },
+    "mode": {
+      "type": "string",
+      "enum": ["private-first", "balanced", "performance"],
+      "description": "Routing posture mode"
+    },
+    "killSwitchLocalOnly": {
+      "type": "boolean",
+      "description": "Emergency kill switch: overrides all traffic to LOCAL_ONLY or BLOCKED_NEEDS_CONSENT"
+    },
+    "enabledDetectors": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Active detection engines"
+    }
+  }
+}

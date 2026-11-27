@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "HybridAtlasContribution",
+  "description": "contrib/{sha256(anonymous uid)}. Coarse enumerated buckets only; no content, location or identifiers. Enforced by firebase/firestore.rules (create-only, owner delete).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["chromeMajorBucket", "osFamily", "availability", "ttftBand", "tokensPerSecBand", "localPassBands", "ts"],
+  "properties": {
+    "chromeMajorBucket": { "type": "string", "pattern": "^([0-9]{2,3}-[0-9]{2,3}|unknown)$" },
+    "osFamily": { "enum": ["windows", "mac", "linux", "chromeos", "other"] },
+    "availability": { "enum": ["available", "downloadable", "downloading", "unavailable", "unsupported"] },
+    "ttftBand": { "enum": ["lt500", "500to1500", "1500to4000", "gte4000", "na"] },
+    "tokensPerSecBand": { "enum": ["lt5", "5to15", "15to40", "gte40", "na"] },
+    "localPassBands": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "classify": { "$ref": "#/$defs/band" }, "extract": { "$ref": "#/$defs/band" }, "rewrite": { "$ref": "#/$defs/band" },
+        "summarize": { "$ref": "#/$defs/band" }, "translate": { "$ref": "#/$defs/band" }, "qa": { "$ref": "#/$defs/band" }
+      }
+    },
+    "ts": { "type": "integer" }
+  },
+  "$defs": { "band": { "enum": ["lt50", "50to80", "gte80", "na"] } }
+}

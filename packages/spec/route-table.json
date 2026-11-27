@@ -1,0 +1,134 @@
+{
+  "title": "Tandem Guard sensitivity routing table (legacy Guard benchmark vectors)",
+  "version": "1.0.0",
+  "routes": [
+    "LOCAL_ONLY",
+    "REDACTED_CLOUD",
+    "CLOUD_DIRECT",
+    "BLOCKED_NEEDS_CONSENT"
+  ],
+  "rules": [
+    {
+      "id": "KILL_SWITCH_ACTIVE",
+      "conditions": {
+        "killSwitchLocalOnly": true,
+        "localModelAvailable": true
+      },
+      "outcome": {
+        "route": "LOCAL_ONLY",
+        "servedBy": "on-device",
+        "inferenceMode": "ONLY_ON_DEVICE",
+        "redactionRequired": false,
+        "reason": "Emergency privacy kill-switch engaged. All operations forced on-device."
+      }
+    },
+    {
+      "id": "KILL_SWITCH_ACTIVE_NO_LOCAL_MODEL",
+      "conditions": {
+        "killSwitchLocalOnly": true,
+        "localModelAvailable": false
+      },
+      "outcome": {
+        "route": "BLOCKED_NEEDS_CONSENT",
+        "servedBy": "blocked",
+        "inferenceMode": null,
+        "redactionRequired": false,
+        "reason": "Emergency kill switch active but local on-device model unavailable. Transmission halted."
+      }
+    },
+    {
+      "id": "OFFLINE_WITH_LOCAL_MODEL",
+      "conditions": {
+        "isOnline": false,
+        "localModelAvailable": true
+      },
+      "outcome": {
+        "route": "LOCAL_ONLY",
+        "servedBy": "on-device",
+        "inferenceMode": "ONLY_ON_DEVICE",
+        "redactionRequired": false,
+        "reason": "Device is offline. Running fully local inference."
+      }
+    },
+    {
+      "id": "OFFLINE_NO_LOCAL_MODEL",
+      "conditions": {
+        "isOnline": false,
+        "localModelAvailable": false
+      },
+      "outcome": {
+        "route": "BLOCKED_NEEDS_CONSENT",
+        "servedBy": "blocked",
+        "inferenceMode": null,
+        "redactionRequired": false,
+        "reason": "Device is offline and on-device model is not available. Execution cannot proceed."
+      }
+    },
+    {
+      "id": "SENSITIVE_SIMPLE_LOCAL_AVAILABLE",
+      "conditions": {
+        "sensitivity": "HIGH",
+        "complexity": "LOW_OR_MEDIUM",
+        "localModelAvailable": true
+      },
+      "outcome": {
+        "route": "LOCAL_ONLY",
+        "servedBy": "on-device",
+        "inferenceMode": "ONLY_ON_DEVICE",
+        "redactionRequired": false,
+        "reason": "Sensitive content with routine complexity. Processed 100% on-device via Gemini Nano with zero network egress."
+      }
+    },
+    {
+      "id": "SENSITIVE_COMPLEX_ONLINE",
+      "conditions": {
+        "sensitivity": "HIGH",
+        "complexity": "HIGH",
+        "isOnline": true
+      },
+      "outcome": {
+        "route": "REDACTED_CLOUD",
+        "servedBy": "cloud",
+        "inferenceMode": "ONLY_IN_CLOUD",
+        "redactionRequired": true,
+        "rehydrationRequired": true,
+        "targetModel": "gemini-3.5-flash-lite",
+        "reason": "Sensitive content with complex task requiring cloud LLM reasoning. Redacted on-device, sanitized payload transmitted, rehydrated locally."
+      }
+    },
+    {
+      "id": "SENSITIVE_LOCAL_UNAVAILABLE_FALLBACK",
+      "conditions": {
+        "sensitivity": "HIGH",
+        "complexity": "LOW_OR_MEDIUM",
+        "localModelAvailable": false,
+        "isOnline": true
+      },
+      "outcome": {
+        "route": "REDACTED_CLOUD",
+        "servedBy": "cloud",
+        "inferenceMode": "ONLY_IN_CLOUD",
+        "redactionRequired": true,
+        "rehydrationRequired": true,
+        "targetModel": "gemini-3.5-flash-lite",
+        "reason": "Sensitive content with routine task, but on-device model unavailable. Redacted on-device prior to cloud transmission."
+      }
+    },
+    {
+      "id": "NON_SENSITIVE_STANDARD",
+      "conditions": {
+        "sensitivity": "LOW",
+        "isOnline": true
+      },
+      "outcome": {
+        "route": "CLOUD_DIRECT",
+        "servedBy": "cloud",
+        "inferenceMode": "PREFER_IN_CLOUD",
+        "redactionRequired": false,
+        "verifierRequired": true,
+        "targetModel": "gemini-3.5-flash-lite",
+        "reason": "Non-sensitive content. Routed to cloud model with defense-in-depth on-device verification."
+      }
+    }
+  ]
+}
