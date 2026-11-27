@@ -297,6 +297,14 @@ aur Aadhaar ४७१२ ०९३८ ५६१८.</pre></div>
         <div class="card span-6"><h3>What leaves, with consent</h3><pre class="receipt">Bhai mera PAN <mark class="tok">PAN_1</mark> hai,
 aur Aadhaar <mark class="tok">AADHAAR_1</mark>.</pre></div>
       </div>
+      <div class="guard-scanner" id="guard-scanner">
+        <div class="guard-scanner__label">Live demo — paste any text below</div>
+        <textarea class="guard-scanner__input" id="guard-input" rows="3" placeholder="e.g. My PAN is BQKPS4821L and Aadhaar is 4712 0938 5618."></textarea>
+        <div class="guard-scanner__out" id="guard-out" aria-live="polite" aria-label="Scan result">
+          <span class="guard-scanner__idle"><span class="guard-scanner__dot"></span>Waiting for input…</span>
+        </div>
+        <div class="guard-scanner__tags" id="guard-tags"></div>
+      </div>
       <div class="section-actions">
         <a class="btn btn--primary" href="/studio/#/guard">Try Guard Lab</a>
         <a class="btn btn--secondary" href="/notes/">Open Tandem Notes</a>
