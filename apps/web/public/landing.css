@@ -307,6 +307,91 @@ h3 { font-size: clamp(1.2rem, 2vw, 1.5rem); line-height: 1.3; }
 .receipt { transition: border-color 300ms ease; border: 1px solid transparent; }
 .receipt:hover { border-color: color-mix(in srgb, var(--p-ink) 12%, transparent); }
 
+/* ── Dramatic hero entrance ── */
+.hero--centred .hero__c {
+  animation: hero-rise 1.2s var(--ease-out) both;
+}
+@keyframes hero-rise {
+  from { opacity: 0; transform: translateY(32px) scale(0.97); filter: blur(6px); }
+  to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+.hero--centred .hero__window {
+  animation: window-rise 1.4s var(--ease-out) 0.3s both;
+}
+@keyframes window-rise {
+  from { opacity: 0; transform: translateY(48px) scale(0.94); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.hero .pill {
+  animation: pill-pop 0.6s var(--ease-out) 0.8s both;
+}
+@keyframes pill-pop {
+  from { opacity: 0; transform: scale(0.8) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ── Section heading accent line ── */
+section h2 { position: relative; }
+section h2::after {
+  content: ""; position: absolute; bottom: -8px; left: 0;
+  width: 48px; height: 3px; background: var(--p-accent); border-radius: 2px;
+  transform: scaleX(0); transform-origin: left; transition: transform 0.8s var(--ease-out);
+}
+.in-view h2::after,
+section.in-view > .wrap > h2::after,
+section.in-view > .wrap > .grid > h2::after { transform: scaleX(1); }
+
+/* ── Stats hover lift ── */
+#results .stat { transition: transform 400ms var(--ease-out); }
+#results .stat:hover { transform: translateY(-4px); }
+
+/* ── Guard marquee edge fade ── */
+.formats { position: relative; }
+.formats::before, .formats::after {
+  content: ""; position: absolute; top: 0; bottom: 0; width: 80px; z-index: 2; pointer-events: none;
+}
+.formats::before { left: 0; background: linear-gradient(to right, var(--p-bg), transparent); }
+.formats::after { right: 0; background: linear-gradient(to left, var(--p-bg), transparent); }
+
+/* ── FAQ hover highlight ── */
+.faq > div {
+  padding: 20px; border-radius: 12px;
+  transition: background 300ms ease, transform 300ms var(--ease-out);
+}
+.faq > div:hover {
+  background: color-mix(in srgb, var(--p-accent) 5%, transparent);
+  transform: translateY(-2px);
+}
+
+/* ── Evidence card ambient glow ── */
+.evidence { position: relative; overflow: hidden; }
+.evidence::before {
+  content: ""; position: absolute; inset: -50%;
+  background: radial-gradient(circle at 30% 30%, color-mix(in srgb, var(--p-accent) 8%, transparent), transparent 60%);
+  opacity: 0; transition: opacity 1s ease;
+}
+.in-view .evidence::before { opacity: 1; }
+
+/* ── Footer CTA shimmer ── */
+.closing__cta .btn--xl { position: relative; overflow: hidden; }
+.closing__cta .btn--xl::after {
+  content: ""; position: absolute; inset: -2px; border-radius: inherit;
+  background: linear-gradient(135deg, var(--p-accent), #d4740a, var(--p-accent));
+  background-size: 200% 200%; animation: btn-shimmer 3s ease infinite;
+  z-index: -1; opacity: 0; transition: opacity 300ms ease;
+}
+.closing__cta .btn--xl:hover::after { opacity: 1; }
+@keyframes btn-shimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero--centred .hero__c, .hero--centred .hero__window, .hero .pill { animation: none; }
+  section h2::after { transform: scaleX(1); transition: none; }
+  .evidence::before { opacity: 1; }
+}
+
 /* ── Smooth scroll ── */
 html { scroll-behavior: smooth; scroll-padding-top: 80px; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
