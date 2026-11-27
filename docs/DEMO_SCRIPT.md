@@ -1,0 +1,22 @@
+﻿# Tandem — 3:00 demo video script
+
+**Length:** ≤ 2:55 · **Platform:** Web (Chrome) only · **Footage:** real, recorded on the author's laptop (Intel i5-1334U, Iris Xe, 16 GB, Chrome 158, separate Chrome profile on D:) · **Captions:** English, burned in + YouTube CC · **Data:** synthetic only
+
+Setup before recording: fresh Chrome profile with Gemini Nano `available` (check Studio → Device check), Studio open at https://tandem-hybrid.web.app, Notes in a second tab, Firebase console (Remote Config) in a third tab, Wi-Fi toggle reachable. 1080p, 100% zoom, light theme.
+
+| Time | On screen (exact action) | Voiceover |
+|---|---|---|
+| 0:00–0:12 | Overview hero. Cursor underlines the struck-through phrase, then "Tandem measures it." | "Every hybrid AI app hardcodes a guess: short prompts go on-device, long ones go to the cloud. Tandem replaces the guess with measurement." |
+| 0:12–0:22 | Click **Run the quick probe**. Lanes start streaming. | "The probe races identical synthetic tasks on Gemini Nano and in the cloud, through Firebase AI Logic, with ONLY_ON_DEVICE and ONLY_IN_CLOUD." |
+| 0:22–0:40 | Mid-run: switch Wi-Fi **off**. Cloud lane fails honestly; on-device lane keeps streaming, badge says On-device. Status strip shows Offline. | "Airplane mode. The cloud lane fails and says so. The on-device lane keeps going, and every badge shows the source the SDK reports. Nothing is simulated." |
+| 0:40–0:50 | Wi-Fi **on**. Scoreline: "Local passed X of Y · local at Z% of cloud quality" (real numbers). Validator checkmarks visible. | "Deterministic validators score every answer: JSON schema, required facts, length, refusals." |
+| 0:50–1:10 | **Frontier**. Hover a panel tooltip; point at a panel where local loses (if any). Click a panel → evidence drawer: n, Wilson bound, p50/p95, four decision checks. | "The frontier shows where the local model wins, and where it doesn't. Every rule carries its evidence: sample size, a Wilson lower bound, latency. The thresholds were fixed before any data existed." |
+| 1:10–1:25 | **Policy**. Rules matrix; drag the Summarise slider in the savings simulator; point at the "estimate" label. Click **Remote Config template**. | "Tandem compiles that into a routing policy, estimates savings for your traffic mix, clearly labelled as estimates, and exports it for Remote Config." |
+| 1:25–1:45 | **Notes** tab. Click "Design review notes" → **Summarise** → On-device badge seals in, "why" line from policy evidence. Then **Extract tasks**. | "Tandem Notes is built only on the Tandem Router SDK. Each action shows where it ran and why, quoting the measured evidence." |
+| 1:45–2:00 | Run an action where the local answer fails validation (if it happens in the take): **Quality escalation** flag, expand "local attempt that failed". Otherwise show the Receipts screen row with the escalation icon from earlier. | "When the local answer fails a check, Tandem escalates to the cloud. That's different from the SDK's availability fallback, and every receipt records which one happened." |
+| 2:00–2:15 | Open "Tax filing checklist" (lock icon) → **Summarise** → stays On-device; chip shows 1 PAN · 1 AADHAAR. Click **What left this device** on a cloud result elsewhere: exact payload with placeholders. | "Privacy is a routing axis. Tandem Guard detects Aadhaar, PAN, IFSC and UPI numbers, even disguised with Indic digits or spacing. Sensitive notes stay on-device; with consent, only a redacted version leaves." |
+| 2:15–2:30 | Firebase console → Remote Config → edit `tandem_policy_v1` (paste the exported policy) → Publish. Cut to Notes: status pill changes to the new policy version; run Summarise; receipt shows the new version. | "Ship a policy to every user through Remote Config. Open apps pick it up in real time, and the receipt records the policy version." |
+| 2:30–2:45 | **Receipts** → Verify chain (green) → Tamper test (red). Then **Atlas**: N devices, availability bars. | "Receipts are SHA-256 hash-chained. And the Hybrid Atlas is an opt-in, anonymous map of which devices can actually run local AI. If you opened the link, you can be a data point." |
+| 2:45–2:55 | Overview + README held-out numbers + URL + repo. | "Measured on held-out tasks: [headline from eval/results/policy-validation-*.json]. Tandem. Measure, don't guess." |
+
+Rules for the edit: no third-party logos; product names only as facts (Firebase, Gemini Nano, Chrome); every number on screen must be in `eval/results/`; keep the "estimate" label visible whenever cost appears.
