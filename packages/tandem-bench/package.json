@@ -1,0 +1,14 @@
+{
+  "name": "@tandem/bench",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Tandem probe: synthetic labelled task battery, deterministic validators, backend-agnostic runner",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": { ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" } },
+  "files": ["dist"],
+  "scripts": { "build": "tsc", "test": "node --test test/*.test.ts" },
+  "license": "Apache-2.0",
+  "dependencies": { "@tandem/policy": "workspace:*" },
+  "devDependencies": { "typescript": "^5.8.0", "@types/node": "^26.6.6" }
+}
