@@ -69,6 +69,7 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
 /* Default icon size; components override with more specific rules below. */
 svg[viewBox='0 0 24 24'] { width: 18px; height: 18px; flex: none; vertical-align: -3px; }
 html { -webkit-text-size-adjust: 100%; }
@@ -473,4 +474,43 @@ input[type='range'] { width: 100%; accent-color: var(--ink); }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+}
+
+/* ---------------------------------------------------------------- card interactivity */
+.card {
+  transition: transform 280ms var(--ease-out), box-shadow 280ms var(--ease-out), border-color 200ms ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  a.card:hover, button.card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow), 0 12px 36px -12px color-mix(in srgb, var(--ink) 18%, transparent);
+    border-color: var(--rule-2);
+  }
+}
+
+/* ---------------------------------------------------------------- page transition */
+@keyframes page-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.page-enter { animation: page-in 220ms var(--ease-out) both; }
+
+/* ---------------------------------------------------------------- notes editor polish */
+.editor-title::placeholder { color: var(--ink-3); }
+.editor-title:focus { outline: none; }
+.editor-body::placeholder { color: var(--ink-3); }
+.editor-body:focus { border-color: var(--rule-2); box-shadow: 0 0 0 3px color-mix(in srgb, var(--local) 10%, transparent); outline: none; }
+.note-item { transition: background 150ms ease, transform 120ms ease; }
+@media (hover: hover) { .note-item:hover { transform: translateX(2px); } }
+.note-item[aria-current='true'] { border-left: 2px solid var(--local); padding-left: 10px; }
+
+/* ---------------------------------------------------------------- notes empty state */
+.editor-empty { display: grid; place-items: center; min-height: 160px; color: var(--ink-3); font-size: 14px; border: 1px dashed var(--rule-2); border-radius: var(--r); padding: 24px; text-align: center; gap: 8px; }
+.editor-empty svg { width: 32px; height: 32px; opacity: 0.4; }
+
+/* ---------------------------------------------------------------- rail & nav polish */
+.nav a { transition: background 150ms ease, color 150ms ease, transform 100ms ease; }
+@media (hover: hover) and (pointer: fine) { .nav a:not([aria-current='page']):hover { transform: translateX(2px); } }
+.nav a[aria-current='page'] { border-left: 2px solid var(--local); padding-left: 8px; }
+
+/* ---------------------------------------------------------------- btn primary glow on hover */
+@media (hover: hover) and (pointer: fine) {
+  .btn-primary:hover { box-shadow: 0 4px 18px -4px color-mix(in srgb, var(--local) 50%, transparent); }
 }

@@ -140,8 +140,8 @@ function paint() {
       </nav>
       <main class="editor">
         ${!navigator.onLine ? banner('warn', 'You are offline', 'Actions the policy routes on-device still work. Cloud-routed actions will say they could not run.', 'wifioff') : ''}
-        <input class="editor-title" id="title" value="${n.title}" aria-label="Note title">
-        <textarea class="editor-body" id="body" aria-label="Note text" rows="9">${n.body}</textarea>
+        <input class="editor-title" id="title" value="${n.title}" placeholder="Untitled" aria-label="Note title">
+        <textarea class="editor-body" id="body" aria-label="Note text" rows="9" placeholder="Start writing your note here…">${n.body}</textarea>
         <div class="spread">
           <div class="actions">${ACTIONS.map(([a, l, ic]) => html`<button class="btn ${a === 'summarize' ? 'btn-primary' : ''}" data-act="${a}" ${busy ? 'disabled' : ''}>${icon(ic)}${l}</button>`)}</div>
           <label class="row" style="font-size:13px">Translate to <select class="select" id="lang" style="width:auto;min-height:32px;padding:4px 10px">${LANGS.map(l => html`<option ${l.name === lang ? 'selected' : ''}>${l.name}</option>`)}</select></label>
@@ -189,7 +189,7 @@ document.addEventListener('change', e => { const t = e.target as HTMLSelectEleme
   try { const th = localStorage.getItem('tandem-theme'); if (th) document.documentElement.dataset.theme = th; } catch { /* ignore */ }
   notes = await kvGet<Note[]>('notes', []);
   if (!notes.length) { notes = SEEDS.map(s => ({ ...s, updated: Date.now() })); await save(); }
-  current = notes[0].id;
+  current = (notes.find(n => n.body.trim()) ?? notes[0]).id;
   paint();
   await tandem.whenReady();
   tandem.subscribe(() => { if (!busy) paint(); });

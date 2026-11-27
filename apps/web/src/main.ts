@@ -104,6 +104,9 @@ async function route() {
   if (typeof cleanup === 'function') cleanup();
   const view = $('#view')!;
   view.innerHTML = '';
+  view.classList.remove('page-enter');
+  void (view as HTMLElement).getBoundingClientRect();
+  view.classList.add('page-enter');
   $('#crumbs')!.textContent = 'Tandem Studio';
   document.title = `${mod.default.title} · Tandem`;
   cleanup = mod.default.render(view);
