@@ -124,6 +124,13 @@ h3 { font-size: clamp(1.2rem, 2vw, 1.5rem); line-height: 1.3; }
 .chip { transition: transform 200ms var(--ease-out); }
 .chip:hover { transform: scale(1.05); }
 
+/* ── Probe row live-run highlight ── */
+.ui-win__row.is-run {
+  background: color-mix(in oklab, var(--u-tint, #e8f0fe) 28%, transparent);
+  box-shadow: inset 3px 0 0 var(--u-accent, #2547d0), inset 0 1px 0 var(--u-line);
+  transition: background 260ms var(--u-ease, ease), box-shadow 260ms var(--u-ease, ease);
+}
+
 /* app-frame (sections-library.md, the whole recipe) */
 .app.ui { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); margin-top: var(--s-7); background: var(--u-bg); border: 1px solid var(--u-border); border-radius: var(--u-r); box-shadow: var(--u-shadow); transition: box-shadow 400ms ease; }
 .app.ui:hover { box-shadow: var(--u-shadow), 0 12px 40px -12px color-mix(in srgb, var(--p-ink) 15%, transparent); }

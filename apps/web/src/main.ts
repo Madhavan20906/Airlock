@@ -168,10 +168,25 @@ function statusStrip() {
 function themeToggle() {
   const pref = (() => { try { return localStorage.getItem('tandem-theme-pref') ?? 'system'; } catch { return 'system'; } })();
   return html`<div class="theme-seg" id="theme" role="group" aria-label="Colour theme">
-    <button class="ts-btn ${pref === 'light'  ? 'ts-on' : ''}" data-t="light"  title="Light theme">${icon('sun')}</button>
-    <button class="ts-btn ${pref === 'system' ? 'ts-on' : ''}" data-t="system" title="Follow system preference">Auto</button>
-    <button class="ts-btn ${pref === 'dark'   ? 'ts-on' : ''}" data-t="dark"   title="Dark theme">${icon('moon')}</button>
+    <span class="ts-pill" aria-hidden="true"></span>
+    <button class="ts-btn ${pref === 'light'  ? 'ts-on' : ''}" data-t="light"  title="Light theme">${icon('sun')}<span class="ts-label">Light</span></button>
+    <button class="ts-btn ${pref === 'system' ? 'ts-on' : ''}" data-t="system" title="Follow system preference">${icon('spark')}<span class="ts-label">Auto</span></button>
+    <button class="ts-btn ${pref === 'dark'   ? 'ts-on' : ''}" data-t="dark"   title="Dark theme">${icon('moon')}<span class="ts-label">Dark</span></button>
   </div>`;
+}
+
+function snapThemePills() {
+  document.querySelectorAll<HTMLElement>('.theme-seg').forEach(seg => {
+    const pill   = seg.querySelector<HTMLElement>('.ts-pill');
+    const active = seg.querySelector<HTMLElement>('.ts-btn.ts-on');
+    if (!pill || !active) return;
+    pill.style.transition = 'none';
+    const sr = seg.getBoundingClientRect(), br = active.getBoundingClientRect();
+    pill.style.width     = `${br.width}px`;
+    pill.style.height    = `${br.height}px`;
+    pill.style.transform = `translateX(${br.left - sr.left}px)`;
+    requestAnimationFrame(() => { pill.style.transition = ''; });
+  });
 }
 
 function shell() {
@@ -199,6 +214,7 @@ function shell() {
 function paintChrome() {
   $('#status')!.innerHTML = statusStrip().html;
   for (const id of ['#theme-d', '#theme-m']) { const el = $(id); if (el) el.innerHTML = themeToggle().html; }
+  requestAnimationFrame(snapThemePills);
 }
 
 let cleanup: void | (() => void);
@@ -243,8 +259,21 @@ function initTheme() {
   document.addEventListener('click', e => {
     const btn = (e.target as Element).closest('.ts-btn[data-t]') as HTMLElement | null;
     if (!btn?.closest('#theme')) return;
-    applyPref(btn.dataset.t!);
-    paintChrome();
+    const newPref = btn.dataset.t!;
+    // Animate the pill to its new position on the current DOM, then rebuild
+    document.querySelectorAll<HTMLElement>('.theme-seg').forEach(seg => {
+      const pill  = seg.querySelector<HTMLElement>('.ts-pill');
+      const toBtn = seg.querySelector<HTMLElement>(`.ts-btn[data-t="${newPref}"]`);
+      if (!pill || !toBtn) return;
+      const sr = seg.getBoundingClientRect(), br = toBtn.getBoundingClientRect();
+      pill.style.width     = `${br.width}px`;
+      pill.style.height    = `${br.height}px`;
+      pill.style.transform = `translateX(${br.left - sr.left}px)`;
+      seg.querySelectorAll<HTMLElement>('.ts-btn').forEach(b => b.classList.toggle('ts-on', b.dataset.t === newPref));
+    });
+    applyPref(newPref);
+    // Rebuild after the pill animation starts (double rAF) so the slide is visible
+    requestAnimationFrame(() => requestAnimationFrame(paintChrome));
   });
 }
 

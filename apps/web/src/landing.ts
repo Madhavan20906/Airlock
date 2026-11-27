@@ -125,6 +125,58 @@ if (guardInput && guardOut) {
   });
 }
 
+// ── Probe row live cycling ───────────────────────────────────────────────────
+const probeWin  = document.querySelector<HTMLElement>('.ui-win[data-ui="window"]');
+const probeRows = Array.from(document.querySelectorAll<HTMLElement>('.ui-win__row[data-row]'));
+
+if (probeWin && probeRows.length) {
+  const finalStates = probeRows.map(row => {
+    const st = row.querySelector<HTMLElement>('[data-st]');
+    return { cls: st?.className ?? 'ui-win__st', txt: st?.textContent ?? 'Queued' };
+  });
+
+  let runIdx = 0;
+  let probeTimer = 0;
+
+  const stepRow = () => {
+    probeRows.forEach((row, i) => {
+      const st = row.querySelector<HTMLElement>('[data-st]');
+      row.classList.remove('is-run');
+      if (!st) return;
+      if (i < runIdx) {
+        st.className = finalStates[i].cls;
+        st.textContent = finalStates[i].txt;
+      } else if (i === runIdx) {
+        st.className = 'ui-win__st is-work';
+        st.textContent = 'Running…';
+        row.classList.add('is-run');
+      } else {
+        st.className = 'ui-win__st';
+        st.textContent = 'Queued';
+      }
+    });
+    runIdx = (runIdx + 1) % probeRows.length;
+  };
+
+  const probeSection = document.getElementById('probe');
+  if (probeSection) {
+    new IntersectionObserver(entries => {
+      for (const e of entries) {
+        if (e.isIntersecting) {
+          if (!probeTimer) { stepRow(); probeTimer = window.setInterval(stepRow, 1300); }
+        } else {
+          clearInterval(probeTimer); probeTimer = 0; runIdx = 0;
+          probeRows.forEach((row, i) => {
+            const st = row.querySelector<HTMLElement>('[data-st]');
+            row.classList.remove('is-run');
+            if (st) { st.className = finalStates[i].cls; st.textContent = finalStates[i].txt; }
+          });
+        }
+      }
+    }, { threshold: 0.2 }).observe(probeSection);
+  }
+}
+
 const nav = document.querySelector('.nav') as HTMLElement;
 if (nav) {
   let last = 0;
