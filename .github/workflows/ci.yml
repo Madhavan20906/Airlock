@@ -1,0 +1,62 @@
+﻿name: Tandem CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-and-verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Packages (typecheck)
+        run: pnpm build:packages
+
+      - name: Build Studio + Notes (typecheck + bundle)
+        run: pnpm --filter @tandem/studio build
+
+      - name: Unit, Guard Lab, policy property, bench and router tests
+        run: pnpm --filter @tandem/guard test && pnpm --filter @tandem/policy test && pnpm --filter @tandem/bench test && pnpm --filter @tandem/router test
+
+      - name: Guard benchmarks (dev + held-out)
+        run: pnpm eval && pnpm eval:heldout
+
+      - name: Eval smoke (policy compiler over committed probe results)
+        run: node eval/policy-validation.mjs --smoke
+
+  firestore-rules:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - run: pnpm install --frozen-lockfile
+      - name: Firestore rules tests (emulator)
+        run: npx -y firebase-tools@15.37.0 emulators:exec --only firestore --project demo-tandem "node --test firebase/rules.test.mjs"

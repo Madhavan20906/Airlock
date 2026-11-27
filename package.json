@@ -1,0 +1,28 @@
+{
+  "name": "tandem-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Tandem: measured routing between on-device and cloud AI for Firebase AI Logic hybrid inference",
+  "scripts": {
+    "build:packages": "pnpm --filter @tandem/guard build && pnpm --filter @tandem/policy build && pnpm --filter @tandem/bench build && pnpm --filter @tandem/ai build && pnpm --filter @tandem/router build",
+    "build": "pnpm build:packages && pnpm --filter @tandem/studio build",
+    "test": "pnpm build:packages && pnpm --filter @tandem/guard test && pnpm --filter @tandem/policy test && pnpm --filter @tandem/bench test && pnpm --filter @tandem/router test",
+    "eval": "node eval/benchmark.ts",
+    "eval:heldout": "node eval/heldout_benchmark.ts",
+    "dev:web": "pnpm --filter @tandem/studio dev"
+  },
+  "keywords": [
+    "hybrid-ai",
+    "privacy",
+    "firebase-ai-logic",
+    "gemini-nano"
+  ],
+  "author": "Tandem Team",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "6.0.0",
+    "firebase": "13.4.0",
+    "playwright-core": "1.49.1"
+  }
+}
