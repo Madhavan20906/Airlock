@@ -1,0 +1,35 @@
+{
+  "name": "@tandem/guard",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Tandem Guard: on-device detection, redaction, leak verification and rehydration of sensitive identifiers (Aadhaar, PAN, IFSC, UPI, GSTIN and more), plus the Guard Lab adversarial corpus",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "node --test test/*.test.ts"
+  },
+  "keywords": [
+    "privacy",
+    "redaction",
+    "pii",
+    "india",
+    "hybrid-ai"
+  ],
+  "author": "Tandem",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "typescript": "^5.8.0"
+  }
+}
