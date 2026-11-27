@@ -1,12 +1,38 @@
 # Tandem — measure, don't guess
 
-**Every hybrid-AI app hardcodes a guess: "short and simple goes on-device, long and hard goes to the cloud." Tandem replaces the guess with measurement.**
+> **Every hybrid-AI app hardcodes a guess: "short and simple goes on-device, long and hard goes to the cloud." Tandem replaces the guess with measurement.**
 
-Firebase AI Logic hybrid inference answers *"is a local model available?"* Tandem answers the harder questions every developer faces next: **which of my tasks can the on-device model actually do well enough, on which devices, what does it cost when it can't, and what must never leave the device at all?** With receipts.
+Firebase AI Logic hybrid inference answers *"is a local model available?"* Tandem answers the harder question every developer hits next: **which of your tasks can the on-device model actually do well enough, on which devices, at what latency cost, and what must never leave the device at all?** With receipts.
 
 Built for **#BuildHybridAI 2026** on **Firebase AI Logic hybrid inference** (Gemini Nano in Chrome + `gemini-3.5-flash-lite` in the cloud). **Platform: Web (Chrome).**
 
-[![Tandem CI](https://github.com/Madhavan20906/Tandem/actions/workflows/ci.yml/badge.svg)](https://github.com/Madhavan20906/Tandem/actions) · Licence: Apache-2.0 · **Live app: [tandem-hybrid.web.app](https://tandem-hybrid.web.app)** · Notes: [tandem-hybrid.web.app/notes/](https://tandem-hybrid.web.app/notes/)
+[![Tandem CI](https://github.com/Madhavan20906/Tandem/actions/workflows/ci.yml/badge.svg)](https://github.com/Madhavan20906/Tandem/actions) · Apache-2.0 · **Live: [tandem-hybrid.web.app](https://tandem-hybrid.web.app)** · Notes: [tandem-hybrid.web.app/notes/](https://tandem-hybrid.web.app/notes/)
+
+---
+
+## What we found when we measured
+
+We ran **285 tasks** across 8 task types on a mid-range laptop (Intel i5-1334U, Iris Xe integrated GPU, 16 GB RAM).  
+Gemini Nano got almost everything right. It was just slow.
+
+| Latency budget | On-device % | Validator pass rate | What it means |
+|---|---|---|---|
+| **8 s** (interactive) | **0 %** | 97.8 % | Local model is accurate but too slow for interactive use on integrated graphics |
+| **30 s** (background) | **86 %** | 100.0 % | Same hardware, same model — background work stays on-device |
+| Cloud baseline | 0 % | 97.8 % | Reference ceiling |
+
+The developer sets the latency budget. Tandem shows what each choice costs — before the app ships, with evidence on every rule.
+
+**Three things measurement found that guessing would not:**
+
+1. **Translation breaks on-device.** Gemini Nano passes 100 % of classify, extract, rewrite and summarise tasks — but only **33 %** of translate tasks (English → Tamil / Hindi). Without measurement, a developer would assume both work because "it's just text."
+
+2. **Latency is the constraint, not accuracy.** On-device median for structured extraction is **20 seconds**; the cloud answers the same task in under **1 second**. No prompt-length heuristic predicts this. Only measurement does.
+
+3. **108 → 2 adversarial leaks.** Tandem Guard started with 108 detected leaks out of 263 adversarial attempts to disguise Indian personal identifiers (PAN, Aadhaar, GSTIN — Indic digits, zero-width chars, Cyrillic lookalikes, base64). After fixes: **2 misses** on a 263-case corpus. We documented the gap, not just the final number.
+
+**What Tandem built on top of that:**  
+A probe that races both models on your tasks → a policy compiler that turns measurements into routing rules with Wilson 95% lower bounds → a router SDK that applies the policy at runtime with Guard-enforced privacy and SHA-256-chained receipts → a live notes app built entirely on the router → Firebase Remote Config delivery so a published policy reaches every open app without a redeploy.
 
 ---
 
