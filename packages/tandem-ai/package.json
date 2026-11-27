@@ -1,0 +1,14 @@
+{
+  "name": "@tandem/ai",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Thin typed wrapper over Firebase AI Logic hybrid inference: capability state, explicit InferenceMode per call, streaming TTFT, servedBy from the SDK",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": { ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" } },
+  "files": ["dist"],
+  "scripts": { "build": "tsc" },
+  "license": "Apache-2.0",
+  "peerDependencies": { "firebase": "^13.4.0" },
+  "devDependencies": { "firebase": "^13.4.0", "typescript": "^5.8.0", "@types/node": "^26.6.6" }
+}
