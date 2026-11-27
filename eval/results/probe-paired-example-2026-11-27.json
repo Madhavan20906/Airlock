@@ -1,0 +1,48 @@
+{
+ "note": "One task from the paired quick probe, both lanes, real outputs.",
+ "taskId": "instruction-S-01",
+ "local": {
+  "runId": "instruction-S-01:on_device:0:ik7t52",
+  "taskId": "instruction-S-01",
+  "taskType": "instruction",
+  "lengthBucket": "S",
+  "backend": "on_device",
+  "inTokensEst": 44,
+  "ts": 1795754249392,
+  "env": {
+   "chromeMajor": 158,
+   "osFamily": "windows",
+   "availability": "available"
+  },
+  "servedBy": "on_device",
+  "ok": true,
+  "quality": 1,
+  "passed": true,
+  "ttftMs": 1431.2999999998137,
+  "totalMs": 7144,
+  "outTokensEst": 45,
+  "outputPreview": "- Create a study schedule; allocate specific times.\n- Practice with past papers; identify weak areas.\n- Use active recall; test yourself frequently instead of passively reading."
+ },
+ "cloud": {
+  "runId": "instruction-S-01:in_cloud:0:1oteuh",
+  "taskId": "instruction-S-01",
+  "taskType": "instruction",
+  "lengthBucket": "S",
+  "backend": "in_cloud",
+  "inTokensEst": 44,
+  "ts": 1795754185487,
+  "env": {
+   "chromeMajor": 158,
+   "osFamily": "windows",
+   "availability": "available"
+  },
+  "servedBy": "in_cloud",
+  "ok": true,
+  "quality": 1,
+  "passed": true,
+  "ttftMs": 825.5,
+  "totalMs": 921,
+  "outTokensEst": 48,
+  "outputPreview": "- Review your notes daily instead of cramming the night before.\n- Practice with past exam papers to build test-taking confidence.\n- Take short breaks every hour to maintain high focus levels."
+ }
+}

@@ -1,0 +1,8 @@
+{
+ "measuredAt": "2026-11-27T04:38:08.665Z",
+ "note": "seed-tax (synthetic)",
+ "action": "Summarise",
+ "route": "Blocked",
+ "why": "Sensitive (1 PAN, 1 AADHAAR, 1 PERSON) and the on-device model is unavailable (timeout after 9000 ms). Nothing was sent. Consent is needed to send a redacted version.",
+ "left": "9.07 s·policy v0·summarize S"
+}

@@ -1,0 +1,23 @@
+{
+  "source": "eval/results/policy-validation-2026-11-27.json",
+  "measuredAt": "2026-11-27T04:38:33.015Z",
+  "chrome": "158.0.8127.38",
+  "machine": "Intel Core i5-1334U (10C/12T), Intel Iris Xe (integrated), 16 GB RAM, Windows 11",
+  "nHeldout": 93,
+  "servedOnDevice": 0,
+  "qualityRetained": 1,
+  "passTandem": 0.978494623655914,
+  "passCloud": 0.978494623655914,
+  "passLocal": 0.9354838709677419,
+  "cloudCallsAvoided": 0,
+  "escalations": 0,
+  "rescued": 0,
+  "p50Tandem": 1344.9000000001397,
+  "p50Cloud": 1344.9000000001397,
+  "background": {
+    "latencyBudgetMs": 30000,
+    "servedOnDevice": 0.8602150537634409,
+    "qualityRetained": 1.021978021978022,
+    "passTandem": 1
+  }
+}
