@@ -111,6 +111,10 @@
         </article>
       </div>
       <p class="req__note">Don't have Gemini Nano? That is fine. A labelled <strong>reference run</strong> from the author's laptop fills every chart and policy rule. The app never pretends — it shows exactly what is available on your device and what is not.</p>
+      <div class="section-actions">
+        <a class="btn btn--primary" href="/studio/#/device">Check your device</a>
+        <a class="btn btn--secondary" href="/studio/#/probe">Run the probe</a>
+      </div>
     </div>
   </section>
 
@@ -118,7 +122,13 @@
     <div class="wrap">
       <div class="grid">
         <h2 id="probe-h" class="span-5">The probe races your tasks on both models</h2>
-        <p class="span-6 start-7 muted">The same synthetic tasks run on Gemini Nano with ONLY_ON_DEVICE and in the cloud with ONLY_IN_CLOUD. Validators score every answer. <a class="link" href="/studio/#/probe">Run the quick probe</a></p>
+        <div class="span-6 start-7">
+          <p class="muted">The same synthetic tasks run on Gemini Nano with ONLY_ON_DEVICE and in the cloud with ONLY_IN_CLOUD. Validators score every answer.</p>
+          <div class="section-actions" style="margin-top:16px">
+            <a class="btn btn--primary" href="/studio/#/probe">Run the quick probe</a>
+            <a class="btn btn--secondary" href="/studio/#/frontier">Explore results</a>
+          </div>
+        </div>
       </div>
       <div class="ui app fill" role="img" aria-label="Tandem Studio probe: a list of measured tasks beside one task's on-device and cloud results" data-ui-pause-host>
         <div class="app__pane app__pane--list">
@@ -202,6 +212,10 @@
           <!-- /GEN:evidence -->
         </div>
       </div>
+      <div class="section-actions">
+        <a class="btn btn--primary" href="/studio/#/policy">See all 24 rules</a>
+        <a class="btn btn--secondary" href="/studio/#/frontier">Explore Frontier</a>
+      </div>
     </div>
   </section>
 
@@ -223,6 +237,10 @@ route: CLOUD · servedBy: in_cloud</pre>
 local attempt: kept for review
 route: CLOUD · servedBy: in_cloud</pre>
         </article>
+      </div>
+      <div class="section-actions">
+        <a class="btn btn--primary" href="/studio/#/receipts">Inspect receipt chain</a>
+        <a class="btn btn--secondary" href="/studio/#/probe">See it happen live</a>
       </div>
     </div>
   </section>
@@ -253,7 +271,10 @@ route: CLOUD · servedBy: in_cloud</pre>
         <div class="compare__row" role="row"><span role="rowheader">All on-device</span><span class="compare__bar" role="cell" aria-label="All on-device: 93.5% passed, 100% on-device"><i class="is-local" style="width:93.5%"></i><i class="is-cloud" style="width:0.0%"></i></span><b role="cell">93.5%</b><span class="compare__note" role="cell">100% on-device</span></div>
       </div>
           <!-- /GEN:results -->
-      <p class="results__src"><a class="link" href="https://github.com/Madhavan20906/Tandem/tree/main/eval/results">Read the raw results</a></p>
+      <div class="section-actions">
+        <a class="btn btn--primary" href="/studio/#/frontier">Open Frontier</a>
+        <a class="btn btn--secondary" href="https://github.com/Madhavan20906/Tandem/tree/main/eval/results">Raw results on GitHub</a>
+      </div>
     </div>
   </section>
 
@@ -276,6 +297,10 @@ aur Aadhaar ४७१२ ०९३८ ५६१८.</pre></div>
         <div class="card span-6"><h3>What leaves, with consent</h3><pre class="receipt">Bhai mera PAN <mark class="tok">PAN_1</mark> hai,
 aur Aadhaar <mark class="tok">AADHAAR_1</mark>.</pre></div>
       </div>
+      <div class="section-actions">
+        <a class="btn btn--primary" href="/studio/#/guard">Try Guard Lab</a>
+        <a class="btn btn--secondary" href="/notes/">Open Tandem Notes</a>
+      </div>
     </div>
   </section>
 
@@ -284,12 +309,16 @@ aur Aadhaar <mark class="tok">AADHAAR_1</mark>.</pre></div>
       <h2 id="built-h">What was built</h2>
       <p class="built__lead">Five TypeScript packages, two web apps, one measurement pipeline — built in nine days on the Firebase Spark plan with no server-side code.</p>
       <div class="grid g3 built__grid">
-        <div class="card built__item"><strong>5 packages</strong><p>tandem-guard, tandem-ai, tandem-bench, tandem-policy, tandem-router — each independently tested, together forming a measured routing stack.</p></div>
-        <div class="card built__item"><strong>192 calibration runs</strong><p>8 task types &times; 12 synthetic tasks &times; 2 lanes, with deterministic validators scoring every answer. 93 held-out tasks replayed for validation.</p></div>
-        <div class="card built__item"><strong>263-case adversarial corpus</strong><p>Tandem Guard tested against Aadhaar, PAN, GSTIN, IFSC, UPI, phone and bank numbers disguised with Indic digits, spacing, Cyrillic lookalikes and base64.</p></div>
-        <div class="card built__item"><strong>Wilson 95% intervals</strong><p>Every routing rule carries a Wilson lower bound on pass rate — not a point estimate, not a guess. Thresholds were fixed before any data existed.</p></div>
-        <div class="card built__item"><strong>SHA-256 hash chain</strong><p>Every routing decision produces a receipt. Receipts are chained: tamper with one and every receipt after it breaks. Verify in-browser.</p></div>
-        <div class="card built__item"><strong>Real-time policy swap</strong><p>The compiled policy ships through Firebase Remote Config with <code>onConfigUpdate</code>. Open apps get the new policy without a reload.</p></div>
+        <a class="card built__item" href="https://github.com/Madhavan20906/Tandem/tree/main/packages"><strong>5 packages</strong><p>tandem-guard, tandem-ai, tandem-bench, tandem-policy, tandem-router — each independently tested, together forming a measured routing stack.</p><span class="built__link">View on GitHub ↗</span></a>
+        <a class="card built__item" href="/studio/#/frontier"><strong>192 calibration runs</strong><p>8 task types &times; 12 synthetic tasks &times; 2 lanes, with deterministic validators scoring every answer. 93 held-out tasks replayed for validation.</p><span class="built__link">Explore Frontier ↗</span></a>
+        <a class="card built__item" href="/studio/#/guard"><strong>263-case adversarial corpus</strong><p>Tandem Guard tested against Aadhaar, PAN, GSTIN, IFSC, UPI, phone and bank numbers disguised with Indic digits, spacing, Cyrillic lookalikes and base64.</p><span class="built__link">Try Guard Lab ↗</span></a>
+        <a class="card built__item" href="/studio/#/policy"><strong>Wilson 95% intervals</strong><p>Every routing rule carries a Wilson lower bound on pass rate — not a point estimate, not a guess. Thresholds were fixed before any data existed.</p><span class="built__link">See the policy ↗</span></a>
+        <a class="card built__item" href="/studio/#/receipts"><strong>SHA-256 hash chain</strong><p>Every routing decision produces a receipt. Receipts are chained: tamper with one and every receipt after it breaks. Verify in-browser.</p><span class="built__link">Verify receipts ↗</span></a>
+        <a class="card built__item" href="/studio/#/probe"><strong>Real-time policy swap</strong><p>The compiled policy ships through Firebase Remote Config with <code>onConfigUpdate</code>. Open apps get the new policy without a reload.</p><span class="built__link">Run the probe ↗</span></a>
+      </div>
+      <div class="section-actions">
+        <a class="btn btn--primary" href="/studio/">Open Tandem Studio</a>
+        <a class="btn btn--secondary" href="https://github.com/Madhavan20906/Tandem">View on GitHub</a>
       </div>
     </div>
   </section>
@@ -297,14 +326,36 @@ aur Aadhaar <mark class="tok">AADHAAR_1</mark>.</pre></div>
   <section class="section" id="questions" aria-labelledby="faq-h">
     <div class="wrap">
       <h2 id="faq-h">Questions from judges and developers</h2>
-      <dl class="faq">
-        <div><dt>Do I need Gemini Nano to try it?</dt><dd>No. Every screen works without it, the on-device lane says why it is idle, and a labelled reference run from the author's laptop fills the charts.</dd></div>
-        <div><dt>Is anything simulated?</dt><dd>No. Every badge shows the inferenceSource Firebase AI Logic reports, and every figure on this page comes from a result file in the repository.</dd></div>
-        <div><dt>What leaves my device?</dt><dd>Nothing for on-device answers. For cloud answers, the receipt shows the exact payload and the bytes sent. Receipts hold metadata only, never content.</dd></div>
-        <div><dt>How does a rule become local-first?</dt><dd>Four checks on the probe data: at least 8 tasks, a 95% lower bound of 75% on-device, within 5 points of the cloud, and a p95 answer time inside your latency budget.</dd></div>
-        <div><dt>Can I use the router in my own app?</dt><dd>Yes. The router is a TypeScript package over Firebase AI Logic: create it with your Firebase app and policy, call run with a task and input, and read the receipt.</dd></div>
-        <div><dt>Which Firebase products does it use?</dt><dd>AI Logic hybrid inference, App Check with reCAPTCHA v3, anonymous Authentication, Firestore and Remote Config, which ships the policy to open apps in real time.</dd></div>
-      </dl>
+      <div class="faq">
+        <details class="faq-item">
+          <summary class="faq-q">Do I need Gemini Nano to try it?</summary>
+          <p class="faq-a">No. Every screen works without it, the on-device lane says why it is idle, and a labelled reference run from the author's laptop fills the charts.</p>
+        </details>
+        <details class="faq-item">
+          <summary class="faq-q">Is anything simulated?</summary>
+          <p class="faq-a">No. Every badge shows the inferenceSource Firebase AI Logic reports, and every figure on this page comes from a result file in the repository.</p>
+        </details>
+        <details class="faq-item">
+          <summary class="faq-q">What leaves my device?</summary>
+          <p class="faq-a">Nothing for on-device answers. For cloud answers, the receipt shows the exact payload and the bytes sent. Receipts hold metadata only, never content.</p>
+        </details>
+        <details class="faq-item">
+          <summary class="faq-q">How does a rule become local-first?</summary>
+          <p class="faq-a">Four checks on the probe data: at least 8 tasks, a 95% lower bound of 75% on-device, within 5 points of the cloud, and a p95 answer time inside your latency budget.</p>
+        </details>
+        <details class="faq-item">
+          <summary class="faq-q">Can I use the router in my own app?</summary>
+          <p class="faq-a">Yes. The router is a TypeScript package over Firebase AI Logic: create it with your Firebase app and policy, call run with a task and input, and read the receipt.</p>
+        </details>
+        <details class="faq-item">
+          <summary class="faq-q">Which Firebase products does it use?</summary>
+          <p class="faq-a">AI Logic hybrid inference, App Check with reCAPTCHA v3, anonymous Authentication, Firestore and Remote Config, which ships the policy to open apps in real time.</p>
+        </details>
+      </div>
+      <div class="section-actions faq-cta">
+        <a class="btn btn--primary" href="/studio/#/start">Judge quick start</a>
+        <a class="btn btn--secondary" href="/studio/">Open Tandem Studio</a>
+      </div>
     </div>
   </section>
 

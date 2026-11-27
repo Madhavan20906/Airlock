@@ -395,3 +395,71 @@ section.in-view > .wrap > .grid > h2::after { transform: scaleX(1); }
 /* ── Smooth scroll ── */
 html { scroll-behavior: smooth; scroll-padding-top: 80px; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+/* ── Section CTAs ── */
+.section-actions {
+  display: flex; flex-wrap: wrap; gap: 10px;
+  margin-top: 32px;
+}
+.section-actions .btn--secondary {
+  background: transparent;
+}
+.faq-cta { margin-top: 40px; justify-content: center; }
+
+/* ── Built cards as links ── */
+a.built__item {
+  text-decoration: none; color: inherit; display: flex; flex-direction: column;
+  transition: transform 220ms var(--ease-out, cubic-bezier(.22,.61,.36,1)),
+              box-shadow 220ms var(--ease-out, cubic-bezier(.22,.61,.36,1)),
+              border-color 150ms ease;
+}
+.built__link {
+  margin-top: auto; padding-top: 12px;
+  font-size: 12.5px; font-weight: 600; letter-spacing: .02em;
+  color: var(--local, #b45f06); opacity: 0;
+  transition: opacity 150ms ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  a.built__item:hover { transform: translateY(-3px);
+    box-shadow: 0 8px 28px -8px color-mix(in srgb, var(--ink, #17191c) 15%, transparent);
+    border-color: var(--rule-2, #ccc);
+  }
+  a.built__item:hover .built__link { opacity: 1; }
+}
+
+/* ── FAQ accordion ── */
+.faq { display: grid; gap: 0; }
+.faq-item {
+  border-bottom: 1px solid var(--rule, #e0ddd4);
+}
+.faq-item:first-child { border-top: 1px solid var(--rule, #e0ddd4); }
+.faq-q {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 18px 0; cursor: pointer;
+  font-size: 15px; font-weight: 600; list-style: none;
+  transition: color 150ms ease;
+  user-select: none;
+}
+.faq-q::-webkit-details-marker { display: none; }
+.faq-q::after {
+  content: '+';
+  font-size: 20px; font-weight: 300; line-height: 1;
+  flex-shrink: 0; margin-left: 16px;
+  color: var(--ink-3, #888);
+  transition: transform 220ms var(--ease-out, cubic-bezier(.22,.61,.36,1)), color 150ms ease;
+}
+.faq-item[open] .faq-q::after { transform: rotate(45deg); color: var(--local, #b45f06); }
+.faq-item[open] .faq-q { color: var(--local, #b45f06); }
+.faq-a {
+  margin: 0; padding: 0 0 20px;
+  color: var(--ink-2, #555); font-size: 14.5px; line-height: 1.65;
+  animation: faq-open 180ms var(--ease-out, cubic-bezier(.22,.61,.36,1)) both;
+}
+@keyframes faq-open {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .faq-a { animation: none; }
+  .faq-q::after { transition: none; }
+}
