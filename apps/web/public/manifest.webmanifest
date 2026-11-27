@@ -1,0 +1,11 @@
+{
+  "name": "Tandem Notes",
+  "short_name": "Tandem",
+  "description": "Private, local-first notes with measured on-device and cloud AI routing.",
+  "start_url": "/notes/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f4f1e8",
+  "theme_color": "#17191c",
+  "icons": [{ "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}
