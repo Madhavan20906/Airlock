@@ -1,6 +1,7 @@
 import type { Screen } from '../main.js';
 import { html, toast } from '../ui/dom.js';
 import { icon } from '../ui/icons.js';
+import { glyph } from '../ui/glyphs.js';
 import { banner, empty, labelOf } from '../ui/components.js';
 import { tandem } from '../services/tandem.js';
 import { firebase } from '../services/firebase.js';
@@ -26,16 +27,18 @@ async function loadCounts(): Promise<Counts> {
   return { total, avail, ttft, tps, pass80, passMeasured };
 }
 
-function hbars(rows: Array<{ label: string; n: number; tone?: string }>, total: number, aria: string) {
-  const max = Math.max(1, ...rows.map(r => r.n));
-  return html`<div class="stack" style="gap:8px" role="list" aria-label="${aria}">${rows.map(r => html`
-    <div role="listitem" class="duo-row" style="grid-template-columns:120px 1fr 64px" title="${r.label}: ${r.n} of ${total}">
-      <span>${r.label}</span><span class="bar ${r.tone ?? ''}"><i style="width:${(r.n / max) * 100}%"></i></span><span class="num" style="text-align:right">${r.n}</span></div>`)}</div>`;
+const CAP = 30;
+/** One pinned disc per real contribution, up to a cap, then the count. Nothing padded. */
+function specimens(title: string, rows: Array<{ label: string; n: number; local: boolean }>) {
+  return html`<figure class="specimen plate"><figcaption class="caps">${title}</figcaption>
+    <div class="spec-cols" role="list">${rows.map(r => html`<div class="spec-col" role="listitem" aria-label="${r.label}: ${r.n} device${r.n === 1 ? '' : 's'}">
+      <div class="pins" aria-hidden="true">${Array.from({ length: Math.min(r.n, CAP) }, () => html`<i class="${r.local ? 'l' : 'o'}"></i>`)}${r.n > CAP ? html`<b class="num">+${r.n - CAP}</b>` : ''}</div>
+      <span class="spec-n num">${r.n}</span><span class="spec-label">${r.label}</span></div>`)}</div></figure>`;
 }
 
 const screen: Screen = {
   title: 'Hybrid Atlas',
-  crumb: 'Step 04 · Hybrid Atlas',
+  crumb: 'Pipeline · 5 Hybrid Atlas',
   render(root) {
     let counts: Counts | null = null;
     let error = '';
@@ -46,56 +49,56 @@ const screen: Screen = {
     const paint = () => {
       const enabled = firebase.settings.atlasEnabled && firebase.configured;
       const contrib = tandem.myRun.length ? buildContribution(tandem.myRun, tandem.capability.state, tandem.capability.chromeMajor) : null;
+      try { sessionStorage.setItem('tandem-atlas-mine', mine ? '1' : '0'); } catch { /* ignore */ }
       root.innerHTML = html`
         <header class="page-head">
           <h1 class="title">How many devices can <em>actually</em> run local AI?</h1>
-          <p class="lede">Nobody can answer this for their own users today. The Atlas is an opt-in, anonymous map built from probe results. If you run the probe, you can be a data point.</p>
+          <p class="lede">Nobody can answer this for their own users today. The Atlas is an opt-in, anonymous map built only from probe results. Run the probe and you can be one pin on it.</p>
         </header>
-        ${!enabled ? banner('warn', 'The Atlas is switched off', 'Remote Config atlas_enabled is false, or Firebase is not configured in this build.') : ''}
-        <div class="grid g2" style="margin-bottom:8px">
-          <div class="card card-pad stack">
-            <strong>What is collected (and nothing else)</strong>
-            <ul class="muted" style="font-size:13px;padding-left:18px;margin:0;display:grid;gap:3px">
-              <li>Chrome version bucket (e.g. 155-159) and OS family</li>
-              <li>On-device availability state</li>
-              <li>Speed bands: median first-token time and tokens per second</li>
-              <li>Local pass-rate bands per task type (&lt;50%, 50-80%, ≥80%)</li>
-            </ul>
-            <strong style="margin-top:6px">Not collected</strong>
-            <p class="muted" style="font-size:13px">No content, no prompts, no location, no IP stored by Tandem, no device model. The record id is a SHA-256 of an anonymous Firebase sign-in id, so one device counts once. Delete it any time.</p>
+        ${!enabled ? html`<div style="margin-bottom:20px">${banner('warn', 'The Atlas is switched off', 'Remote Config atlas_enabled is false, or Firebase is not configured in this build. Nothing below is collected.')}</div>` : ''}
+        <div class="folio">
+          <div>
+            ${error ? banner('bad', 'Could not load the Atlas', html`${error} <button class="btn btn-sm" id="retry" style="margin-left:8px">Try again</button>`)
+              : !counts ? html`<div class="scan" role="status" aria-label="Loading counts"></div><p class="meta" style="margin-top:8px">Counting devices with Firestore aggregation queries.</p>`
+              : counts.total === 0 ? html`<div class="plate">${empty('globe', 'No devices yet', 'Be the first: run the probe and add your device. No reference data is shown here, because none is invented.')}</div>`
+              : html`
+                <p class="verdict"><span class="vn num">${counts.total}</span><span>device${counts.total === 1 ? '' : 's'} measured,</span><span class="t-local"><b class="num">${counts.avail.available}</b> could run Gemini Nano.</span><span class="muted">Live Firestore counts. A self-selected sample of people who opened Tandem, not all users.</span></p>
+                ${specimens('On-device availability', AVAIL.map(a => ({ label: a, n: counts!.avail[a], local: a === 'available' })))}
+                <div class="g2 grid" style="margin-top:26px">
+                  ${specimens('Median first token', TTFT.map(a => ({ label: BAND_LABEL[a], n: counts!.ttft[a], local: a !== 'na' })))}
+                  ${specimens('Local tokens per second', TPS.map(a => ({ label: BAND_LABEL[a], n: counts!.tps[a], local: a !== 'na' })))}
+                </div>
+                <div class="sec"><h2>Passed ≥ 80% on-device</h2><span class="caps">devices, by task type</span></div>
+                <div class="table-wrap"><table class="t"><thead><tr><th>Task</th><th class="r">Devices ≥ 80%</th><th class="r">Measured</th></tr></thead><tbody>
+                  ${ATLAS_TASKS.map(t => html`<tr><td>${labelOf[t]}</td><td class="num r">${counts!.pass80[t]}</td><td class="num r faint">${counts!.passMeasured[t]}</td></tr>`)}
+                </tbody></table></div>`}
           </div>
-          <div class="card card-pad stack">
-            <strong>Your contribution</strong>
-            ${mine ? html`<div class="banner ok">${icon('check')}<div>Your device is in the Atlas. <button class="btn btn-sm" id="del" style="margin-left:8px">${icon('trash')}Delete it</button></div></div>`
-              : !contrib ? html`<p class="muted" style="font-size:13px">Run the quick probe first. The Atlas only accepts measured results.</p><a class="btn btn-primary" href="#/probe" style="justify-self:start">${icon('race')}Run the probe</a>`
-              : html`<pre class="payload" aria-label="Exactly what would be sent">${JSON.stringify(contrib, null, 2)}</pre>
-                <label class="row" style="font-size:13px"><input type="checkbox" id="consent" ${consent ? 'checked' : ''}> I agree to add exactly this record to the public, anonymous Atlas.</label>
-                <button class="btn btn-primary" id="add" ${!consent || busy || !enabled ? 'disabled' : ''} style="justify-self:start">${busy ? html`<span class="spinner"></span>` : icon('globe')}Add my device</button>`}
-          </div>
-        </div>
-        <h2 class="section-title">The Atlas so far</h2>
-        ${error ? banner('bad', 'Could not load the Atlas', error)
-          : !counts ? html`<div class="card card-pad"><div class="skeleton" style="height:140px"></div></div>`
-          : counts.total === 0 ? html`<div class="card">${empty('globe', 'No devices yet', 'Be the first: run the probe and add your device. No reference data is shown here, because none is fabricated.')}</div>`
-          : html`
-            <div class="card card-pad" style="margin-bottom:14px"><div class="scoreline"><span><span class="num">${counts.total}</span> device${counts.total === 1 ? '' : 's'} measured</span><span class="faint">·</span><span><span class="n-local num">${counts.avail.available}</span> could run Gemini Nano</span></div><p class="faint" style="font-size:12px;margin-top:6px">Live counts from Firestore aggregation queries. Self-selected sample (people who opened Tandem); not representative of all users.</p></div>
-            <div class="grid g3">
-              <div class="card card-pad stack"><strong>On-device availability</strong>${hbars(AVAIL.map(a => ({ label: a, n: counts!.avail[a], tone: a === 'available' ? 'local' : '' })), counts.total, 'Availability states')}</div>
-              <div class="card card-pad stack"><strong>Median first token</strong>${hbars(TTFT.map(a => ({ label: BAND_LABEL[a], n: counts!.ttft[a], tone: a === 'na' ? '' : 'local' })), counts.total, 'Time to first token bands')}</div>
-              <div class="card card-pad stack"><strong>Local tokens per second</strong>${hbars(TPS.map(a => ({ label: BAND_LABEL[a], n: counts!.tps[a], tone: a === 'na' ? '' : 'local' })), counts.total, 'Tokens per second bands')}</div>
-            </div>
-            <div class="card card-pad stack" style="margin-top:14px"><strong>Devices where on-device passed ≥ 80% of tasks</strong>${hbars(ATLAS_TASKS.map(t => ({ label: `${labelOf[t]} (of ${counts!.passMeasured[t]})`, n: counts!.pass80[t], tone: 'local' })), counts.total, 'Pass rate at least 80 percent by task')}</div>`}`.html;
+          <aside class="margin">
+            <section class="consent" aria-labelledby="cn-t">
+              <h2 id="cn-t" class="consent-t">Your device</h2>
+              ${mine ? html`<p>${glyph('local')} Your device is in the Atlas.</p><button class="btn btn-sm" id="del">${icon('trash')}Delete my record</button>`
+                : !contrib ? html`<p class="muted">The Atlas only accepts measured results. Run the quick probe first.</p><a class="btn btn-primary" href="#/probe" style="justify-self:start">${icon('play')}Run the probe</a>`
+                : html`<p class="caps">Exactly this record would be sent</p>
+                  <pre class="payload" tabindex="0" aria-label="Exactly what would be sent">${JSON.stringify(contrib, null, 2)}</pre>
+                  <label class="consent-check"><input type="checkbox" id="consent" ${consent ? 'checked' : ''}><span>I agree to add exactly this record to the public, anonymous Atlas.</span></label>
+                  <button class="btn btn-primary" id="add" ${!consent || busy || !enabled ? 'disabled' : ''}>${busy ? html`<span class="spinner"></span>` : ''}Add my device</button>`}
+            </section>
+            <div class="mnote"><span class="caps">Collected</span><span>Chrome version bucket and OS family; availability state; speed bands; local pass-rate bands per task type.</span></div>
+            <div class="mnote"><span class="caps">Never collected</span><span>Content, prompts, location, device model. Tandem stores no IP. The record id is a SHA-256 of an anonymous sign-in id, so one device counts once. Delete it any time.</span></div>
+          </aside>
+        </div>`.html;
     };
 
     const refresh = async () => {
       try { counts = await loadCounts(); error = ''; } catch (e: any) { error = String(e?.message ?? e); }
-      mine = await firebase.atlasMine();
+      try { mine = await firebase.atlasMine(); } catch { mine = null; }
       paint();
     };
 
-    root.addEventListener('change', e => { if ((e.target as HTMLElement).id === 'consent') { consent = (e.target as HTMLInputElement).checked; paint(); } });
+    root.addEventListener('change', e => { if ((e.target as HTMLElement).id === 'consent') { consent = (e.target as HTMLInputElement).checked; paint(); (root.querySelector('#consent') as HTMLElement)?.focus(); } });
     root.addEventListener('click', async e => {
       const t = e.target as HTMLElement;
+      if (t.closest('#retry')) { error = ''; counts = null; paint(); void refresh(); }
       if (t.closest('#add')) {
         const c = buildContribution(tandem.myRun, tandem.capability.state, tandem.capability.chromeMajor);
         busy = true; paint();

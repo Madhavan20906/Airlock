@@ -48,9 +48,9 @@ The only hybrid-AI tool that compiles a routing policy from statistical evidence
 
 - Name: **Tandem** (lowercase in running text, title case in headings)
 - Tagline: "measure, don't guess"
-- Palette: warm parchment background (#f4f1e8), dark ink (#17191c), amber accent (#b45f06), cloud blue (#2547d0)
-- Typography: IBM Plex Sans / IBM Plex Mono
-- Icon: amber square with white T-like mark (favicon.svg)
+- Palette ("Field Instrument", see docs/DESIGN.md): Paper #F2EEE3 / Darkroom #0F0D0B, ink #15120E, on-device viridian #0A5C58, cloud vermilion #E0452B, highlighter #F4D35E
+- Typography: Instrument Serif (display), Schibsted Grotesk (UI), JetBrains Mono (data), all self-hosted
+- Icon: ruled square with two lanes (viridian solid, vermilion dashed) converging on an ink point (favicon.svg)
 - License: Apache-2.0, attributed "Tandem Authors"
 - Trademark line: "Firebase, Gemini and Chrome are trademarks of Google LLC."
 

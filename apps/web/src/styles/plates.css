@@ -1,0 +1,95 @@
+/* ============================================================== FRONTIER PLATES */
+.verdict { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin: 4px 0 22px; font: 400 var(--t-xl)/1.2 var(--f-display); }
+.verdict .vn { font: 400 72px/.8 var(--f-display); letter-spacing: -2px; }
+.verdict .muted { font: 400 var(--t-sm)/1.4 var(--f-text); flex-basis: 100%; }
+.plates { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 26px; }
+.fplate { margin: 0; padding: 12px 12px 8px; }
+.fplate figcaption { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 6px; }
+.fplate .ft { font: 400 var(--t-xl)/1 var(--f-display); }
+.fmeta { display: flex; justify-content: space-between; align-items: center; font: 400 11px var(--f-mono); color: var(--ink-3); }
+.plate-svg { display: block; width: 100%; height: auto; overflow: visible; }
+.plate-svg .pg-min { stroke: var(--rule); stroke-width: .6; }
+.plate-svg .pg-maj { stroke: var(--rule-2); stroke-width: .7; opacity: .7; }
+.plate-svg .pg-frame { fill: none; stroke: var(--ink); stroke-width: 1; }
+.plate-svg .pg-axis { stroke: var(--ink); stroke-width: 1; }
+.plate-svg .pg-floor { stroke: var(--ink); stroke-width: 1; stroke-dasharray: 5 3; }
+.plate-svg .pg-lab { font: 8.5px var(--f-mono); fill: var(--ink-3); }
+.plate-svg .pg-pt { font: 600 8.5px var(--f-mono); fill: var(--ink-2); }
+.pt { cursor: pointer; outline: none; }
+.pt .hit { fill: transparent; }
+.pt.local .disc { fill: var(--local); stroke: var(--bg); stroke-width: 1.5; }
+.pt.local .whisk { stroke: var(--local); stroke-width: 1.3; fill: none; }
+.pt.cloud .ring { fill: var(--bg); stroke: var(--cloud); stroke-width: 2; }
+.pt:hover .disc, .pt:focus-visible .disc { stroke: var(--ink); stroke-width: 2; }
+.pt:hover .ring, .pt:focus-visible .ring { stroke-width: 3; }
+.pt:focus-visible .hit { stroke: var(--focus); stroke-width: 1.5; stroke-dasharray: 2 2; }
+.plates.sweep .pt { animation: plot 260ms var(--ease) both; animation-delay: calc(var(--i) * 45ms + 120ms); }
+@keyframes plot { from { opacity: 0; transform: translateY(4px); } }
+.loupe { position: fixed; z-index: 50; display: grid; gap: 2px; padding: 8px 10px; min-width: 170px; background: var(--sheet); border: 1px solid var(--ink); box-shadow: var(--float); font: 400 11.5px/1.45 var(--f-mono); pointer-events: none; }
+.loupe b { font-weight: 600; }
+.loupe em { font-style: normal; color: var(--ink-3); font-size: 10.5px; margin-top: 4px; }
+.stamp.thin { border-style: dashed; }
+
+/* ============================================================== EVIDENCE SHEET */
+.ev-title { font: 400 40px/1.05 var(--f-display); margin-top: 14px; }
+.ev-title em { color: var(--ink-2); }
+.ev-r { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.conds { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.cond { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 10px; align-items: center; font-size: var(--t-sm); }
+
+/* ============================================================== POLICY CERTIFICATE */
+.cert { padding: clamp(20px, 3.4vw, 44px); background: var(--sheet); border: 1px solid var(--ink); outline: 1px solid var(--ink); outline-offset: -7px; margin-bottom: 10px; }
+.cert-h { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; flex-wrap: wrap; padding-bottom: 16px; border-bottom: 2px solid var(--ink); }
+.cert-title { font: 400 var(--t-3xl)/1.02 var(--f-display); margin-top: 6px; letter-spacing: -.4px; }
+.cert-no { display: grid; gap: 4px; text-align: right; }
+.cert-no .mono { font-size: 13px; letter-spacing: .06em; }
+.cert-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 32px; margin: 0; }
+.cert-fields > div { display: grid; grid-template-columns: 130px minmax(0, 1fr); gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--rule); align-items: baseline; }
+.cert-fields dt { font: 500 10.5px/1.3 var(--f-mono); letter-spacing: .07em; text-transform: uppercase; color: var(--ink-3); }
+.cert-fields dd { margin: 0; font-size: var(--t-sm); }
+.cert-motto { font: italic 400 var(--t-2xl)/1 var(--f-display); margin: 24px 0 14px; }
+.cert-rules th[scope='row'] { font: 500 var(--t-sm)/1.3 var(--f-text); text-transform: none; letter-spacing: 0; color: var(--ink); border-bottom: 1px solid var(--rule); white-space: nowrap; }
+.cert-rules td { padding: 8px 10px; }
+.cert-rules .cell { display: grid; gap: 6px; justify-items: start; background: none; border: 0; padding: 4px; cursor: pointer; color: inherit; text-align: left; }
+.cert-rules .cell:hover .cell-ev { text-decoration: underline; }
+.cell-ev { font-size: 10.5px; color: var(--ink-3); }
+.cert-rules td.is-diff .cell-ev { color: var(--on-hl); }
+.cert-sign { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; margin-top: 30px; }
+.cert-sign > div { display: grid; gap: 6px; }
+.sig { font: italic 400 var(--t-xl)/1.1 var(--f-display); padding-bottom: 6px; border-bottom: 1px solid var(--ink); min-height: 34px; }
+.deploy-row { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; padding: 14px 0; border-bottom: 1px solid var(--rule); }
+.dv { display: grid; gap: 4px; }
+.dvn { font: 400 56px/.9 var(--f-display); }
+.dv-arrow { font: 400 32px var(--f-display); color: var(--ink-3); }
+.diff-list { list-style: none; padding: 0; margin: 0 0 14px; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0 20px; }
+.diff-list li { display: flex; justify-content: space-between; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--rule); font-size: 12.5px; }
+.live-note { margin: 10px 0; font-size: var(--t-sm); }
+.steps { margin: 14px 0 0; padding-left: 18px; display: grid; gap: 10px; font-size: var(--t-sm); color: var(--ink-2); }
+.sliders { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px 26px; margin-bottom: 22px; }
+.assumptions { margin: 12px 0 0; padding-left: 18px; display: grid; gap: 2px; }
+
+@media (max-width: 900px) {
+  .plates { grid-template-columns: minmax(0, 1fr); }
+  .cert-fields { grid-template-columns: minmax(0, 1fr); }
+  .cert-fields > div { grid-template-columns: 110px minmax(0, 1fr); }
+  .cert-sign { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .sliders { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cert-no { text-align: left; }
+}
+
+/* ============================================================== PRINT: the certificate, paper-white, A4 */
+@media print {
+  @page { size: A4; margin: 14mm; }
+  :root, :root[data-theme='dark'] { --bg: #fff; --sheet: #fff; --surface: #f2f2f2; --ink: #000; --ink-2: #333; --ink-3: #555; --rule: #bbb; --rule-2: #777; --local: #0A5C58; --local-text: #0A5C58; --cloud: #E0452B; --cloud-text: #B3321B; color-scheme: light; }
+  body { background: #fff; }
+  body::before, .rail, .topbar, .mobile-bar, .mobile-nav, .no-print, .toast, .scrim, .drawer, .skip { display: none !important; }
+  .shell { display: block; }
+  .main { padding: 0; }
+  .cert { border: 1px solid #000; outline: 1px solid #000; padding: 10mm; box-shadow: none; break-inside: avoid; }
+  .plate::before { inset: -5mm; }
+  .stamp { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .hl-swipe, mark { background: none !important; text-decoration: underline 2px; }
+  .cert-rules .cell { padding: 2px; }
+}
+/* Display numerals stay in the serif even when tagged .num for tabular figures */
+.dvn, .sig.num, .vn, .hm-n, .sb-n, .sb-n .odo, .rv, .cert-title .num, .slip-big { font-family: var(--f-display) !important; font-variant-numeric: tabular-nums lining-nums; }

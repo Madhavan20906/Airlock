@@ -1,0 +1,44 @@
+/* Fixes from the blind review (docs/ui-review/REVIEW.md). Loaded last. */
+
+/* Instrument Serif's "1" reads as "l": versions, counts and scores use light mono numerals instead. */
+.dvn, .vn, .spec-n, .sb-n, .sb-n .odo, .rv, .cert-title .num {
+  font-family: var(--f-mono) !important; font-weight: 300; letter-spacing: -.04em; font-variant-numeric: tabular-nums slashed-zero;
+}
+.sb-n { font-size: clamp(64px, 6vw, 96px); }
+.verdict .vn { font-size: 60px; }
+.dvn { font-size: 46px; }
+.rv { font-size: clamp(30px, 3vw, 40px) !important; }
+.sb-none { display: inline-block; font: 600 11px/1 var(--f-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-2); border: 1.5px solid var(--ink-2); padding: 6px 8px; transform: rotate(-1.5deg); background: repeating-linear-gradient(135deg, transparent 0 4px, color-mix(in srgb, var(--ink) 7%, transparent) 4px 5px); }
+
+/* Darkroom viridian: less saturated, so it reads as ink under a safelight, not neon. 8.0:1 on --bg. */
+@media (prefers-color-scheme: dark) { :root:not([data-theme='light']) { --local: #5DB3A6; --local-text: #5DB3A6; } }
+:root[data-theme='dark'] { --local: #5DB3A6; --local-text: #5DB3A6; }
+
+/* The reason a rule stays cloud-first, printed where the verdict is */
+.cell-why { font: 500 10.5px/1.3 var(--f-mono); color: var(--ink); background: linear-gradient(var(--hl), var(--hl)) no-repeat 0 60% / 100% 70%; padding: 0 3px; }
+:root[data-theme='dark'] .cell-why { color: var(--on-hl); }
+.fmeta > span { max-width: 75%; }
+
+/* Stable gutter: the status bar no longer shifts on screens with a scrollbar */
+html { scrollbar-gutter: stable; }
+
+/* Mobile tab bar: every item fits at 390 px, nothing clipped */
+@media (max-width: 900px) {
+  .mobile-nav { overflow: hidden; padding-inline: 0; }
+  .mobile-nav a { flex: 1 1 0; min-width: 0; padding: 8px 1px 9px; font-size: 9.5px; letter-spacing: -.01em; }
+  .mobile-nav a:last-child { display: none; } /* Overview: the brand in the top bar links home */
+  .probe-ctl .row { margin-left: 0 !important; }
+  .plate::before { inset: -4px; }
+  .strat th[scope='row'] { white-space: normal; }
+  .legend-line { margin-left: 0 !important; }
+}
+
+/* Notes: one measure for title, body and toolbar (ch differed between 17 px body and 15 px toolbar) */
+.n-page > * { max-width: 640px; }
+.n-actions .act { padding: 0 12px; }
+
+/* Landing: the captured result line is a stamp; never wrap it mid-token */
+.lp .d-msg small { white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+
+/* Atlas consent payload: keep keys with values */
+.consent .payload { white-space: pre; overflow-x: auto; }

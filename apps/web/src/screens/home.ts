@@ -1,6 +1,7 @@
 import type { Screen } from '../main.js';
 import { html, pct, fmtMs } from '../ui/dom.js';
 import { icon } from '../ui/icons.js';
+import { glyph } from '../ui/glyphs.js';
 import { routeBadge, fallbackFlag, escalationFlag, labelOf } from '../ui/components.js';
 import { tandem } from '../services/tandem.js';
 import { aggregate, compilePolicy, TASK_TYPES } from '@tandem/policy';
@@ -15,96 +16,98 @@ interface Headline {
 let headline: Headline | null | undefined;
 const loadHeadline = () => (headline !== undefined ? Promise.resolve(headline)
   : fetch('/headline.json', { cache: 'no-cache' }).then(r => (r.ok ? r.json() : null)).catch(() => null).then(h => (headline = h)));
-
 const dateOf = (iso: string) => new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
 
-function compare(h: Headline) {
-  const rows: Array<{ name: string; pass: number | null; tone: string; note: string; share?: number | null }> = [
-    { name: 'Tandem, 8 s budget', pass: h.passTandem, tone: 'mix', share: h.servedOnDevice, note: `${pct(h.servedOnDevice)} on-device · p50 ${fmtMs(h.p50Tandem)}` },
-    ...(h.background ? [{ name: 'Tandem, 30 s budget', pass: h.background.passTandem, tone: 'mix', share: h.background.servedOnDevice, note: `${pct(h.background.servedOnDevice)} on-device · background work` }] : []),
-    { name: 'All cloud', pass: h.passCloud, tone: 'cloud', note: `0% on-device · p50 ${fmtMs(h.p50Cloud)}` },
-    { name: 'All on-device', pass: h.passLocal, tone: 'local', note: '100% on-device, no validation' }
+function strategies(h: Headline) {
+  const rows = [
+    { name: 'Tandem · 8 s budget', pass: h.passTandem, share: h.servedOnDevice ?? 0, note: `${pct(h.servedOnDevice)} on-device · p50 ${fmtMs(h.p50Tandem)}` },
+    ...(h.background ? [{ name: 'Tandem · 30 s budget', pass: h.background.passTandem, share: h.background.servedOnDevice ?? 0, note: `${pct(h.background.servedOnDevice)} on-device · background work` }] : []),
+    { name: 'All cloud', pass: h.passCloud, share: 0, note: `p50 ${fmtMs(h.p50Cloud)}` },
+    { name: 'All on-device', pass: h.passLocal, share: 1, note: 'no validation, no escalation' }
   ];
-  return html`<div class="compare" role="table" aria-label="Held-out pass rate by routing strategy">
-    ${rows.map(r => html`<div class="compare-row" role="row">
-      <span class="compare-name" role="rowheader">${r.name}</span>
-      <span class="compare-bar ${r.tone}" role="cell" aria-label="${r.name} pass rate ${pct(r.pass, 1)}">
-        ${r.tone === 'mix' ? html`<i class="local" style="width:${(r.pass ?? 0) * (r.share ?? 0) * 100}%"></i><i class="cloud" style="width:${(r.pass ?? 0) * (1 - (r.share ?? 0)) * 100}%"></i>` : html`<i style="width:${(r.pass ?? 0) * 100}%"></i>`}
-      </span>
-      <span class="compare-val num" role="cell">${pct(r.pass, 1)}</span>
-      <span class="compare-note" role="cell">${r.note}</span>
-    </div>`)}
-  </div>`;
+  return html`<table class="t strat"><caption class="sr">Held-out pass rate by routing strategy, split by where requests were served</caption>
+    <thead><tr><th>Strategy</th><th>Pass rate, held-out</th><th class="r">Pass</th><th>Served</th></tr></thead>
+    <tbody>${rows.map(r => html`<tr><th scope="row">${r.name}</th>
+      <td><span class="sbar" aria-hidden="true"><i class="l" style="width:${(r.pass ?? 0) * r.share * 100}%"></i><i class="c" style="width:${(r.pass ?? 0) * (1 - r.share) * 100}%"></i></span></td>
+      <td class="num r">${pct(r.pass, 1)}</td><td class="faint mono" style="font-size:12px">${r.note}</td></tr>`)}</tbody></table>`;
 }
 
 const screen: Screen = {
   title: 'Overview',
-  crumb: 'Tandem Studio',
+  crumb: 'Tandem Studio · Overview',
   render(root) {
     const paint = () => {
       const d = chooseData();
       const byType = d.results.length ? aggregate(d.results).byType : [];
-      const rows = TASK_TYPES.map(t => ({ t, c: byType.find(x => x.taskType === t) }));
       const policy = d.results.length ? compilePolicy(d.results) : null;
-      const localFirst = policy ? policy.rules.filter(r => r.route === 'LOCAL_FIRST').length : 0;
       const best = policy ? [...policy.rules].sort((a, b) => (b.evidence.wilsonLoLocal ?? -1) - (a.evidence.wilsonLoLocal ?? -1))[0] : null;
       const cap = tandem.capability;
-      const flow: Array<[string, string, string]> = [
-        ['Probe', '#/probe', `${d.results.length || 0} runs measured`],
-        ['Frontier', '#/frontier', `${byType.length} task types compared`],
-        ['Policy', '#/policy', policy ? `${localFirst} of 24 rules local-first` : 'compiled with evidence'],
-        ['Remote Config', '#/policy', `v${tandem.policy.version} live in the router`],
-        ['Router', '/notes/', 'local-first, validated, escalates'],
-        ['Receipts', '#/receipts', `${tandem.receipts.length} SHA-256-chained`]
-      ];
+      const h = headline;
+      const passedN = h && h.passLocal !== null ? Math.round(h.passLocal * h.nHeldout) : null;
       root.innerHTML = html`
-        <section class=”card hero anim-section”>
-          <div class=”stack” style=”gap:20px”>
-            <h1 class=”hero-quote”>Every hybrid app hardcodes a guess: <span class=”strike”>”short goes on-device, long goes to the cloud.”</span> <em>Tandem measures it.</em></h1>
-            <p class=”lede”>Firebase AI Logic hybrid answers “is a local model available?” Tandem answers what comes next: which of <i>your</i> tasks the on-device model can actually do, on which devices, what it costs when it can't, and what must never leave the device. With receipts.</p>
-            <div class=”row”><a class=”btn btn-primary” href=”#/probe”>${icon('race')}Run the quick probe</a><a class=”btn” href=”/notes/”>${icon('notes')}Open Tandem Notes</a><a class=”btn btn-ghost” href=”#/start”>Judge quick start ${icon('arrow')}</a></div>
+        <section class="folio hero-folio">
+          <div class="hero-main">
+            <h1 class="hero-line">Every hybrid app hardcodes a guess:<br><s class="guess">“short goes on-device, long goes to the cloud.”</s><br><em>Tandem measures it.</em></h1>
+            ${h && passedN !== null ? html`
+              <div class="hero-metric">
+                <span class="hm-n t-local num">${pct(h.passLocal)}</span>
+                <p class="hm-cap">Gemini Nano passed <b class="num">${passedN}</b> of <b class="num">${h.nHeldout}</b> unseen tasks on a laptop GPU.<br><span class="muted">Quality is not the problem. Speed decides the rest.</span></p>
+              </div>` : ''}
+            <div class="row hero-cta"><a class="btn btn-primary" href="#/probe">${icon('play')}Run the quick probe</a><a class="btn" href="/notes/">${icon('notes')}Open Tandem Notes</a><a class="btn btn-ghost" href="#/start">Judge quick start</a></div>
           </div>
-          <figure class="figure" aria-label="Pass rate by task type, on-device and cloud">
-            <figcaption class="spread"><strong>Pass rate by task type</strong><span class="legend"><span><i class="sw local"></i>On-device</span><span><i class="sw cloud"></i>Cloud</span></span></figcaption>
-            ${byType.length ? html`<div class="duo">${rows.map(({ t, c }) => html`
-              <div class="duo-row" title="${labelOf[t]}: on-device ${pct(c?.local.passRate)} (n=${c?.local.n ?? 0}), cloud ${pct(c?.cloud.passRate)} (n=${c?.cloud.n ?? 0})">
-                <span>${labelOf[t]}</span>
-                <span class="stack" style="gap:3px"><span class="bar local"><i style="width:${(c?.local.passRate ?? 0) * 100}%"></i></span><span class="bar cloud"><i style="width:${(c?.cloud.passRate ?? 0) * 100}%"></i></span></span>
-                <span class="num" style="text-align:right">${pct(c?.local.passRate)}</span>
-              </div>`)}</div>
-              <p class="meta" style="margin-top:14px">${d.caption}. Losses are shown, not hidden.</p>`
-            : html`<p class="meta">No measurements yet. Run the probe to fill this with real numbers from your device.</p>`}
-          </figure>
+          <aside class="margin">
+            ${h ? html`<div class="mnote"><span class="caps">Source</span><span>Measured on the author's laptop, ${dateOf(h.measuredAt)}, Chrome <span class="num">${h.chrome}</span>.</span><span class="mono faint" style="font-size:11px">${h.machine}</span><span class="mono faint" style="font-size:11px">${h.source}</span></div>` : html`<div class="mnote"><span class="caps">Source</span><span>Loading the committed result file.</span></div>`}
+            <div class="mnote"><span class="caps">This browser</span><span>${cap.state === 'available' ? routeBadge('LOCAL') : html`on-device model: <span class="mono">${cap.raw}</span>`}</span><a href="#/device" class="faint">Device check</a></div>
+            <div class="mnote"><span class="caps">Rule</span><span>Thresholds were fixed before any data: Wilson 95% lower bound ≥ 75%, n ≥ 8, within 5% of cloud.</span></div>
+          </aside>
         </section>
 
-        ${headline ? html`<section class="card card-pad result anim-section" aria-labelledby="ho-title">
-          <div class="result-head">
-            <h2 id="ho-title" class="section-title" style="margin:0">Gemini Nano passed <span class="num" style="color:var(--local)">${pct(headline.passLocal)}</span> of ${headline.nHeldout} unseen tasks. Speed decides the rest.</h2>
-            <p class="lede" style="font-size:15px">Compiled on calibration tasks only, replayed on held-out tasks measured on both models. At the registered 8-second budget Tandem keeps <b class="num">${pct(headline.servedOnDevice)}</b> on-device${headline.background ? html`; give background work 30 seconds and it keeps <b class="num">${pct(headline.background.servedOnDevice)}</b>` : ''}. Sensitive notes stay local at any budget.</p>
+        ${h ? html`<section aria-labelledby="ho-t">
+          <div class="sec"><h2 id="ho-t">Held-out validation</h2><span class="caps">n = ${h.nHeldout} · compiled on calibration only</span></div>
+          <div class="folio">
+            <div>${strategies(h)}<p class="legend-line"><span>${glyph('local')} solid: served on-device</span><span class="c">${glyph('cloud')} hatched: served in the cloud</span></p></div>
+            <aside class="margin"><div class="mnote"><span class="caps">Reading it</span><span>At the registered 8-second budget Tandem keeps <b class="num">${pct(h.servedOnDevice)}</b> on-device on this hardware: Nano is accurate but slow on an integrated GPU. Give background work 30 seconds and <b class="num">${pct(h.background?.servedOnDevice)}</b> stays local, at no loss in pass rate. Negative results are reported, not hidden.</span></div></aside>
           </div>
-          ${compare(headline)}
-          <p class="meta">Measured on the author's laptop (${headline.machine}), ${dateOf(headline.measuredAt)}, Chrome ${headline.chrome}. Raw data: <span class="mono">${headline.source}</span></p>
         </section>` : ''}
 
-        <section class="anim-section" aria-labelledby="flow-title">
-          <h2 id="flow-title" class="section-title">How it works</h2>
-          <ol class="flow">${flow.map(([name, href, fact]) => html`<li><a href="${href}"><span class="flow-name">${name}</span><span class="flow-fact">${fact}</span></a></li>`)}</ol>
+        <section aria-labelledby="tt-t">
+          <div class="sec"><h2 id="tt-t">Pass rate by task type</h2><span class="caps">${d.label}</span></div>
+          ${byType.length ? html`<div class="folio"><div class="pairs" role="table" aria-label="Pass rate by task type, on-device and cloud">
+              <div class="pair head" role="row"><span role="columnheader">Task</span><span role="columnheader">${glyph('local')} on-device</span><span role="columnheader">${glyph('cloud')} cloud</span></div>
+              ${TASK_TYPES.map(t => { const c = byType.find(x => x.taskType === t); return html`<div class="pair" role="row">
+                <span role="rowheader">${labelOf[t]}</span>
+                <span role="cell" class="pv"><span class="pbar l"><i style="width:${(c?.local.passRate ?? 0) * 100}%"></i></span><span class="num">${pct(c?.local.passRate)}</span></span>
+                <span role="cell" class="pv"><span class="pbar c"><i style="width:${(c?.cloud.passRate ?? 0) * 100}%"></i></span><span class="num">${pct(c?.cloud.passRate)}</span></span></div>`; })}
+            </div><aside class="margin"><div class="mnote"><span class="caps">Data</span><span>${d.caption}.</span><span class="faint">Losses are shown, not hidden.</span></div></aside></div>`
+          : html`<p class="muted">No measurements yet. Run the probe to fill this with numbers from your device.</p>`}
         </section>
 
-        <section class="anim-section" aria-labelledby="diff-title">
-          <h2 id="diff-title" class="section-title">What hybrid inference was missing</h2>
+        <section aria-labelledby="pp-t">
+          <div class="sec"><h2 id="pp-t">The pipeline</h2><span class="caps">measure → decide → ship → prove</span></div>
+          <ol class="pipe">
+            ${[
+              ['1', 'Probe', '#/probe', `${tandem.myRun.length || 'no'} runs on this device`],
+              ['2', 'Frontier', '#/frontier', `${byType.length} task types plotted`],
+              ['3', 'Policy', '#/policy', policy ? `${policy.rules.filter(r => r.route === 'LOCAL_FIRST').length} of 24 rules local-first` : 'compiled with evidence'],
+              ['4', 'Deploy', '#/deploy', `v${tandem.policy.version} live in the router`],
+              ['5', 'Atlas', '#/atlas', 'opt-in device map']
+            ].map(([n, name, href, fact]) => html`<li><a href="${href}"><span class="pn num">${n}</span><span class="pname">${name}</span><span class="pfact">${fact}</span></a></li>`)}
+          </ol>
+          <p class="pipe-then"><span class="caps">then</span> <a href="/notes/">Router SDK in Tandem Notes</a> <span class="faint">→</span> <a href="#/receipts">${tandem.receipts.length} hash-chained receipts</a></p>
+        </section>
+
+        <section aria-labelledby="df-t">
+          <div class="sec"><h2 id="df-t">What hybrid inference was missing</h2></div>
           <dl class="defs">
             <div><dt>Two reasons to use the cloud, never conflated</dt>
-              <dd><span class="row" style="gap:14px;margin-bottom:6px">${fallbackFlag()}${escalationFlag()}</span>The SDK falls back when the local model is unavailable. Tandem also escalates when the local answer is not good enough, because it failed a JSON, length, fact or refusal check, and every receipt records which one happened.</dd></div>
+              <dd><span class="row" style="gap:18px;margin-bottom:8px">${fallbackFlag()}${escalationFlag()}</span>The SDK falls back when the local model is unavailable. Tandem also escalates when the local answer is not good enough: it failed a JSON, length, fact or refusal check. Every receipt records which one happened.</dd></div>
             <div><dt>A policy that can defend itself</dt>
-              <dd>${best ? html`<span class="row" style="margin-bottom:6px"><span class="chip">${labelOf[best.taskType]} ${best.lengthBucket}</span><span class="chip">n <b>${best.evidence.n}</b></span><span class="chip">lower bound <b>${pct(best.evidence.wilsonLoLocal)}</b></span><span class="chip">p95 <b>${fmtMs(best.evidence.p95Local)}</b></span></span>` : ''}Every routing rule carries its evidence: sample size, local and cloud pass rates, a Wilson 95% lower bound and latency. Thresholds were fixed before any data existed.${best ? html` <span class="faint">Shown: the strongest rule in the ${d.label.toLowerCase()}.</span>` : ''}</dd></div>
+              <dd>${best ? html`<span class="row" style="margin-bottom:8px"><span class="chip">${labelOf[best.taskType]} ${best.lengthBucket}</span><span class="chip">n <b>${best.evidence.n}</b></span><span class="chip">lower bound <b>${pct(best.evidence.wilsonLoLocal)}</b></span><span class="chip">p95 <b>${fmtMs(best.evidence.p95Local)}</b></span></span>` : ''}Every rule carries its evidence: sample size, both pass rates, a Wilson 95% lower bound and latency.${best ? html` <span class="faint">Shown: the strongest rule in the ${d.label.toLowerCase()}.</span>` : ''}</dd></div>
             <div><dt>Privacy decides before measurements do</dt>
-              <dd><span class="row" style="margin-bottom:6px">${routeBadge('LOCAL')}${routeBadge('CLOUD_REDACTED')}${routeBadge('BLOCKED')}</span>Tandem Guard finds Aadhaar, PAN, IFSC, UPI, GSTIN and phone numbers, even disguised with Indic digits, spacing or lookalike letters. Sensitive content stays on-device, leaves redacted only with your consent, or is blocked.</dd></div>
+              <dd><span class="row" style="margin-bottom:8px">${routeBadge('LOCAL')}${routeBadge('CLOUD_REDACTED')}${routeBadge('BLOCKED')}</span>Tandem Guard finds Aadhaar, PAN, IFSC, UPI, GSTIN and phone numbers, even disguised with Indic digits, spacing or lookalike letters. Sensitive content stays on-device, leaves redacted only with consent, or is blocked.</dd></div>
           </dl>
         </section>
-
-        <div class="banner banner-hero ${cap.state === 'available' ? 'local' : ''} anim-section" style="margin-top:28px">${icon(cap.state === 'available' ? 'chip' : 'info')}<div class="stack" style="gap:4px"><strong>Nothing here is simulated.</strong><span class="muted">Every badge shows who actually answered, as reported by Firebase AI Logic. This browser's on-device model: <span class="mono">${cap.raw}</span>. <a href="#/device">Device check</a></span></div></div>`.html;
-      requestAnimationFrame(() => { root.querySelectorAll('.anim-section').forEach(el => el.classList.add('is-mounted')); });
+        <p class="colophon">Nothing here is simulated. Every stamp shows who actually answered, as reported by Firebase AI Logic. All sample data is synthetic.</p>`.html;
     };
     const unsub = tandem.subscribe(paint);
     void tandem.whenReady().then(paint);

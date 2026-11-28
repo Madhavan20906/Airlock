@@ -1,0 +1,9 @@
+/* Self-hosted, latin subset, no third-party requests (the product makes privacy claims).
+   Fallback faces carry size-adjust so the swap does not shift layout (values measured, see docs/DESIGN.md). */
+@font-face { font-family: 'Instrument Serif'; font-style: normal; font-weight: 400; font-display: swap; src: url('/fonts/instrument-serif-400.woff2') format('woff2'); }
+@font-face { font-family: 'Instrument Serif'; font-style: italic; font-weight: 400; font-display: swap; src: url('/fonts/instrument-serif-400-italic.woff2') format('woff2'); }
+@font-face { font-family: 'Schibsted Grotesk'; font-style: normal; font-weight: 400 900; font-display: swap; src: url('/fonts/schibsted-grotesk-var.woff2') format('woff2-variations'); }
+@font-face { font-family: 'JetBrains Mono'; font-style: normal; font-weight: 100 800; font-display: swap; src: url('/fonts/jetbrains-mono-var.woff2') format('woff2-variations'); }
+@font-face { font-family: 'Instrument Serif Fallback'; src: local('Georgia'), local('Times New Roman'); size-adjust: 86%; ascent-override: 98%; descent-override: 26%; }
+@font-face { font-family: 'Schibsted Fallback'; src: local('Arial'), local('Helvetica'); size-adjust: 100%; ascent-override: 98%; descent-override: 24%; }
+@font-face { font-family: 'JetBrains Fallback'; src: local('Consolas'), local('Courier New'); size-adjust: 109%; ascent-override: 93%; descent-override: 24%; }

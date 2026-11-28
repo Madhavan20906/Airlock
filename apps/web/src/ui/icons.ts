@@ -45,8 +45,8 @@ export function icon(name: keyof typeof P | string, label?: string) {
 
 /** The Tandem mark: two lanes converging into one decision point. */
 export const brandMark = raw(`<svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
-  <rect x="1" y="1" width="30" height="30" rx="9" fill="var(--ink)"/>
-  <path d="M7 11h8c3 0 4 2 5 5" stroke="var(--local)" stroke-width="2.6" fill="none" stroke-linecap="round"/>
-  <path d="M7 21h8c3 0 4-2 5-5" stroke="var(--cloud)" stroke-width="2.6" fill="none" stroke-linecap="round"/>
-  <circle cx="22.5" cy="16" r="3" fill="var(--paper)"/>
+  <rect x="1" y="1" width="30" height="30" rx="2" fill="none" stroke="var(--ink)" stroke-width="1.5"/>
+  <path d="M5 11.5h8.5c3.2 0 4.4 1.9 5.6 4.5" stroke="var(--local)" stroke-width="2.4" fill="none"/>
+  <path d="M5 20.5h8.5c3.2 0 4.4-1.9 5.6-4.5" stroke="var(--cloud)" stroke-width="2.4" fill="none" stroke-dasharray="3 1.6"/>
+  <circle cx="23" cy="16" r="3.4" fill="var(--ink)"/>
 </svg>`);

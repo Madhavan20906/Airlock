@@ -9,7 +9,7 @@
 - **Studio** (9 screens) and **Notes** UI on the lab-notebook design system; command palette, 3-way theme, live Guard scanner; PWA shell; validated palette.
 - **Firebase**: App Check, anonymous Auth, Firestore metadata rules + emulator tests (`@firebase/rules-unit-testing` 6.0.0), Remote Config params with real-time listener, hosting site `tandem-hybrid` with CSP.
 - **Measurement complete**: calibration (192 runs) + held-out (93 runs) + policy validation committed under `eval/results/` with machine label. README results block regenerated from raw files.
-- **Gallery**: 7 screenshots + thumbnail committed to `docs/gallery/` (landing, studio overview, probe, frontier, policy, guard lab, notes).
+- **Gallery**: Field Instrument redesign (28 Nov): 8 screenshots at 1500x1000 + thumbnail + `certificate-of-calibration.pdf` in `docs/gallery/`. Probe mid-run and Remote Config swap still to be captured on the owner machine (Nano + App Check).
 - Docs: README, JUDGE_MAP, DEVPOST, DEMO_SCRIPT, DESIGN, POLICY_RULE, SUBMIT_CHECKLIST.
 
 ## In progress
