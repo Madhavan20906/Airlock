@@ -79,7 +79,7 @@ const screen: Screen = {
               ${mine ? html`<p>${glyph('local')} Your device is in the Atlas.</p><button class="btn btn-sm" id="del">${icon('trash')}Delete my record</button>`
                 : !contrib ? html`<p class="muted">The Atlas only accepts measured results. Run the quick probe first.</p><a class="btn btn-primary" href="#/probe" style="justify-self:start">${icon('play')}Run the probe</a>`
                 : html`<p class="caps">Exactly this record would be sent</p>
-                  <pre class="payload" aria-label="Exactly what would be sent">${JSON.stringify(contrib, null, 2)}</pre>
+                  <pre class="payload" tabindex="0" aria-label="Exactly what would be sent">${JSON.stringify(contrib, null, 2)}</pre>
                   <label class="consent-check"><input type="checkbox" id="consent" ${consent ? 'checked' : ''}><span>I agree to add exactly this record to the public, anonymous Atlas.</span></label>
                   <button class="btn btn-primary" id="add" ${!consent || busy || !enabled ? 'disabled' : ''}>${busy ? html`<span class="spinner"></span>` : ''}Add my device</button>`}
             </section>

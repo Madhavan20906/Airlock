@@ -29,7 +29,7 @@ export function receiptSlip(r: Receipt, o: SlipOpts = {}) {
       ${left ? html`
         ${kv('to', r.destination.join(', ') || 'Firebase AI Logic')}
         ${kv('bytes', html`<b>${r.bytesOut.toLocaleString()}</b> observed · ${r.payloadBytes.toLocaleString()} prompt`)}
-        ${o.payload ? html`<div class="slip-t" style="margin-top:6px">PAYLOAD, AS SENT</div><pre class="slip-pay">${o.payload.split(/(\[[A-Z_]+_\d+\])/).map(p => /^\[[A-Z_]+_\d+\]$/.test(p) ? html`<mark>${p}</mark>` : p)}</pre>`
+        ${o.payload ? html`<div class="slip-t" style="margin-top:6px">PAYLOAD, AS SENT</div><pre class="slip-pay" tabindex="0" aria-label="Payload as sent">${o.payload.split(/(\[[A-Z_]+_\d+\])/).map(p => /^\[[A-Z_]+_\d+\]$/.test(p) ? html`<mark>${p}</mark>` : p)}</pre>`
           : html`<p class="slip-note">Content is not stored in receipts, only its size.</p>`}`
         : html`<p class="slip-big">0 bytes</p><p class="slip-note">${r.route === 'BLOCKED' ? 'Blocked. Nothing was sent.' : 'Answered on this device.'}</p>`}
     </div>

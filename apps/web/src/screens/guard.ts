@@ -19,7 +19,7 @@ const screen: Screen = {
       try {
         const ents = runDeterministicDetectors(own);
         const r = redactText(own, ents);
-        return html`<p class="caps" style="margin-top:12px">What would leave the device</p><pre class="payload" aria-label="What would leave the device">${r.sanitizedText.split(/(\[[A-Z_]+_\d+\])/).map(p => /^\[[A-Z_]+_\d+\]$/.test(p) ? html`<mark>${p}</mark>` : p)}</pre><div class="row" style="margin-top:8px">${ents.length ? ents.map(e => html`<span class="chip">${e.type}</span>`) : html`<span class="meta">no identifiers found</span>`}</div>`;
+        return html`<p class="caps" style="margin-top:12px">What would leave the device</p><pre class="payload" tabindex="0" aria-label="What would leave the device">${r.sanitizedText.split(/(\[[A-Z_]+_\d+\])/).map(p => /^\[[A-Z_]+_\d+\]$/.test(p) ? html`<mark>${p}</mark>` : p)}</pre><div class="row" style="margin-top:8px">${ents.length ? ents.map(e => html`<span class="chip">${e.type}</span>`) : html`<span class="meta">no identifiers found</span>`}</div>`;
       } catch (e: any) {
         return html`<div class="banner bad" style="margin-top:12px">${icon('lock')}<div><strong>Blocked by the verifier.</strong> <span class="muted">${String(e?.message ?? e)}. Nothing would be sent.</span></div></div>`;
       }

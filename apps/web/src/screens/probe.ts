@@ -171,8 +171,8 @@ const screen: Screen = {
           <div><dt>total</dt><dd class="num" data-r="tot-${k}">${fmtMs(L.total)}</dd></div>
         </dl>
         <div class="lane-task">${L.task ? html`<span class="caps">now</span><span class="mono">${labelOf[L.task.type]} · ${L.task.lengthBucket}${L.task.sensitive ? ' · sensitive, redacted for cloud' : ''}</span>` : html`<span class="caps">idle</span>`}</div>
-        <pre class="stream" id="stream-${k}" aria-live="off">${showText}${L.status === 'running' ? html`<span class="caret"></span>` : ''}</pre>
-        <div class="checks" aria-label="Validator results">${L.report ? L.report.results.map(r => checkChip(VALIDATOR_LABEL[r.kind] ?? r.kind, r.passed, r.detail, true)) : L.task ? L.task.validators.map(v => checkChip(VALIDATOR_LABEL[v.kind] ?? v.kind, null)) : ''}</div>`}
+        <pre class="stream" id="stream-${k}" aria-live="off" tabindex="0" aria-label="${name} output">${showText}${L.status === 'running' ? html`<span class="caret"></span>` : ''}</pre>
+        <div class="checks" role="group" aria-label="Validator results">${L.report ? L.report.results.map(r => checkChip(VALIDATOR_LABEL[r.kind] ?? r.kind, r.passed, r.detail, true)) : L.task ? L.task.validators.map(v => checkChip(VALIDATOR_LABEL[v.kind] ?? v.kind, null)) : ''}</div>`}
       </section>`;
     };
 
@@ -187,7 +187,7 @@ const screen: Screen = {
       const doneTasks = new Set([...cells.entries()].filter(([, c]) => c.l !== undefined || c.c !== undefined).map(([id]) => id)).size;
       const out = html`<div class="seam" aria-live="polite" aria-atomic="true">
         <span class="caps">Scoreboard</span>
-        <div class="sb-big"><span class="sb-lab">Local passed</span><span class="sb-n t-local">${L.done ? odo(L.passed, 'l', L.passed) : html`<span class="faint">–</span>`}</span><span class="sb-of ${L.done ? '' : 'is-word'}">${L.done ? html`of <span class="num">${L.done}</span>` : localReady() ? html`of <span class="num">${tasks.length}</span>, not started` : 'not run on this device'}</span></div>
+        <div class="sb-big"><span class="sb-lab">Local passed</span><span class="sb-n t-local">${L.done ? odo(L.passed, 'l', L.passed) : html`<span class="sb-none">not run</span>`}</span><span class="sb-of ${L.done ? '' : 'is-word'}">${L.done ? html`of <span class="num">${L.done}</span>` : localReady() ? html`of <span class="num">${tasks.length}</span>, not started` : 'not run on this device'}</span></div>
         <div class="sb-row"><span>${glyph('cloud')}Cloud</span><span class="num t-cloud">${odo(C.passed, 'c', C.passed)}<span class="faint"> / ${C.done}</span></span></div>
         <div class="sb-row"><span>Cloud quality retained</span><span class="num">${ret === null ? '—' : html`${odo(ret, 'q', ret)}%`}</span></div>
         <div class="sb-row"><span>Tasks</span><span class="num">${doneTasks} / ${tasks.length}</span></div>
@@ -205,7 +205,7 @@ const screen: Screen = {
         : side === 'l' ? (v ? '<circle cx="7" cy="7" r="5"/>' : '<circle cx="7" cy="7" r="4.6" class="o"/><path d="m4.2 4.2 5.6 5.6M9.8 4.2l-5.6 5.6"/>')
         : (v ? '<circle cx="7" cy="7" r="4.4" class="o"/>' : '<circle cx="7" cy="7" r="4.4" class="o"/><path d="m4.2 4.2 5.6 5.6M9.8 4.2l-5.6 5.6"/>')}</svg>`);
     };
-    const tapeHtml = () => html`<div class="tape-wrap"><ol class="tape" aria-label="Task results, on-device and cloud">${tasks.map((t, i) => {
+    const tapeHtml = () => html`<div class="tape-wrap" tabindex="0" role="region" aria-label="Task tape, scrolls sideways"><ol class="tape" aria-label="Task results, on-device and cloud">${tasks.map((t, i) => {
       const c = cells.get(t.id) ?? {};
       const active = lanes.on_device.task?.id === t.id && lanes.on_device.status === 'running' || lanes.in_cloud.task?.id === t.id && lanes.in_cloud.status === 'running';
       return html`<li class="tcell ${active ? 'active' : ''}" title="${t.id}"><span class="tnum num">${String(i + 1).padStart(2, '0')}</span><span class="tname">${labelOf[t.type]}<span class="faint"> ${t.lengthBucket}</span></span>${mark(c.l, 'l')}${mark(c.c, 'c')}</li>`;

@@ -11,6 +11,17 @@ export function ruleChip(route: PolicyRule['route'], status?: string) {
   return html`<span class="stamp ${local ? 'local' : 'cloud'} ${thin ? 'thin' : ''}" role="img" aria-label="Rule: ${label}${thin ? ', insufficient evidence' : ''}">${glyph(local ? 'local' : 'cloud')}${label}${thin ? html`<span class="sub">· n low</span>` : ''}</span>`;
 }
 
+/** The first decision-rule condition a rule fails, in a few words ("p95 10.3 s > 8.00 s"), or null when it is local-first. */
+export function blocker(rule: PolicyRule, params: CompileParams): string | null {
+  if (rule.route === 'LOCAL_FIRST' || rule.route === 'LOCAL_ONLY') return null;
+  const ev = rule.evidence;
+  if (ev.n < params.minN) return `n ${ev.n} < ${params.minN}`;
+  if (ev.wilsonLoLocal === null || ev.wilsonLoLocal < params.qualityFloor) return `low ${pct(ev.wilsonLoLocal)} < ${pct(params.qualityFloor)}`;
+  if (ev.passCloud !== null && (ev.passLocal ?? 0) < ev.passCloud - params.tolerance) return `${pct(ev.passLocal)} vs cloud ${pct(ev.passCloud)}`;
+  if (ev.p95Local !== null && ev.p95Local > params.latencyBudgetMs) return `p95 ${fmtMs(ev.p95Local)} > ${fmtMs(params.latencyBudgetMs)}`;
+  return null;
+}
+
 function cond(ok: boolean | null, text: unknown) {
   return html`<li class="cond">${checkChip(ok === null ? 'not reached' : ok ? 'holds' : 'fails', ok)}<span>${text}</span></li>`;
 }

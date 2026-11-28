@@ -3,6 +3,7 @@ import '../styles/screens.css';
 import '../styles/slips-notes.css';
 import '../styles/plates.css';
 import '../styles/misc.css';
+import '../styles/review-fixes.css';
 // Indic faces: unicode-range subsets, so the browser fetches a script's file only when that script appears on screen.
 import '@fontsource/noto-sans-devanagari/400.css';
 import '@fontsource/noto-sans-tamil/400.css';
@@ -131,7 +132,7 @@ function annotation() {
     ${r.status === 'ok' ? html`<div class="ann-out ${tr ? 'indic' : ''}" ${tr ? html`lang="${LANG_CODE[result.lang]}"` : ''}>${out}</div>`
       : r.status === 'blocked' ? banner('bad', 'Held on this device', 'This note contains sensitive identifiers and no on-device model is available here. Nothing was sent.', 'lock')
       : banner('bad', 'Could not complete', r.error ?? rc.why)}
-    ${rc.qualityEscalation.happened && r.local ? html`<details><summary class="faint" style="cursor:pointer;font-size:12.5px">The local attempt that failed validation</summary><pre class="payload" style="margin-top:8px">${r.local.output || '(empty)'}</pre></details>` : ''}
+    ${rc.qualityEscalation.happened && r.local ? html`<details><summary class="faint" style="cursor:pointer;font-size:12.5px">The local attempt that failed validation</summary><pre class="payload" tabindex="0" style="margin-top:8px">${r.local.output || '(empty)'}</pre></details>` : ''}
     <div class="ann-line"><span class="num">${fmtMs(rc.latencyMs)} · policy v${rc.policyVersion} · ${rc.route === 'LOCAL' || rc.route === 'BLOCKED' ? '0 bytes left' : `${rc.bytesOut.toLocaleString()} bytes left`}</span>
       <button class="btn btn-sm" id="slip-t" aria-expanded="${showSlip}">${icon('receipt')}${showSlip ? 'Hide receipt' : 'Print receipt'}</button></div>
     ${showSlip ? receiptSlip(rc, { index: tandem.receipts.length - 1, payload: r.sentToCloud ?? null, print: printNext, verify: true, verdict: chain }) : ''}
@@ -146,7 +147,7 @@ function consentHtml() {
     <h2 id="c-title" style="font:400 30px/1.1 var(--f-display)">Send a redacted version to the cloud?</h2>
     <p class="meta">Your consent applies to this one request only.</p>
     <p class="muted">There is no on-device model here, so this sensitive note was held. If you agree, exactly the text below is sent. Identifiers are replaced by placeholders and restored on your device afterwards.</p>
-    <pre class="payload">${consent.preview.split(/(\[[A-Z_]+_\d+\])/).map(p => /^\[[A-Z_]+_\d+\]$/.test(p) ? html`<mark>${p}</mark>` : p)}</pre>
+    <pre class="payload" tabindex="0">${consent.preview.split(/(\[[A-Z_]+_\d+\])/).map(p => /^\[[A-Z_]+_\d+\]$/.test(p) ? html`<mark>${p}</mark>` : p)}</pre>
     <div class="row" style="justify-content:flex-end"><button class="btn" id="c-no">Keep it local</button><button class="btn btn-primary" id="c-yes">Send redacted</button></div>
   </div></div>`;
 }
@@ -193,11 +194,11 @@ function paint() {
         <textarea class="editor-title" id="title" rows="1" placeholder="Untitled" aria-label="Note title">${n.title}</textarea>
         <textarea class="editor-body" id="body" aria-label="Note text" rows="10" placeholder="Start writing.">${n.body}</textarea>
         <div class="n-actions" role="toolbar" aria-label="AI actions">
-          ${ACTIONS.map(([a, l, k]) => html`<button class="act ${busy === a ? 'busy' : ''}" data-act="${a}" ${busy ? 'disabled' : ''} aria-keyshortcuts="Alt+${k}">${l}<kbd>Alt ${k}</kbd></button>`)}
+          ${ACTIONS.map(([a, l, k]) => html`<button class="act ${busy === a ? 'busy' : ''}" data-act="${a}" ${busy ? 'disabled' : ''} aria-keyshortcuts="Alt+${k}" title="Alt+${k}">${l}</button>`)}
           <label class="lang">to <select class="select" id="lang">${LANGS.map(l => html`<option ${l.name === lang ? 'selected' : ''}>${l.name}</option>`)}</select></label>
         </div>
         <div id="askrow" class="row" hidden><input class="input" id="q" placeholder="Ask across your notes, e.g. When is the tax deadline?" style="flex:1"><button class="btn btn-primary" id="ask-go">Ask</button></div>
-        <p class="n-fine">Each action is routed by the Tandem policy. Notes with identifiers (lock) never leave without your consent. All sample data is synthetic.</p>
+        <p class="n-fine">Each action is routed by the Tandem policy. Notes with identifiers (lock) never leave without your consent. All sample data is synthetic. Shortcuts: Alt+S, R, E, T, A.</p>
       </main>
       <aside class="n-margin" aria-label="Results">${annotation()}</aside>
     </div>${consentHtml()}${drawerHtml()}`.html;

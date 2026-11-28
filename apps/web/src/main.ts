@@ -3,6 +3,7 @@ import './styles/screens.css';
 import './styles/slips-notes.css';
 import './styles/plates.css';
 import './styles/misc.css';
+import './styles/review-fixes.css';
 import { html, $ } from './ui/dom.js';
 import { icon, brandMark } from './ui/icons.js';
 import { pill } from './ui/components.js';

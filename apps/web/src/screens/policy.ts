@@ -2,7 +2,7 @@ import type { Screen } from '../main.js';
 import { html, fmtMs, pct, toast } from '../ui/dom.js';
 import { icon } from '../ui/icons.js';
 import { empty, labelOf, banner } from '../ui/components.js';
-import { openEvidence, ruleChip } from '../ui/evidence.js';
+import { openEvidence, ruleChip, blocker } from '../ui/evidence.js';
 import { chooseData, dataToggle, getParam, type DataChoice } from './data.js';
 import { tandem } from '../services/tandem.js';
 import { firebase } from '../services/firebase.js';
@@ -93,7 +93,7 @@ const screen: Screen = {
             ${TASK_TYPES.map(t => html`<tr><th scope="row">${labelOf[t]}</th>${LENGTH_BUCKETS.map(b => {
               const r = policy!.rules.find(x => x.taskType === t && x.lengthBucket === b)!;
               const k = `${t}|${b}`;
-              return html`<td class="${changed.has(k) ? 'is-diff' : ''}"><button class="cell" data-rule="${k}" aria-label="Evidence for ${labelOf[t]} ${BUCKET_NAME[b]}${changed.has(k) ? ', differs from the live policy' : ''}">${ruleChip(r.route, r.evidence.status)}<span class="cell-ev num"><span class="${changed.has(k) ? 'hl-swipe' : ''}">n ${r.evidence.n} · low ${pct(r.evidence.wilsonLoLocal)}</span></span></button></td>`;
+              return html`<td class="${changed.has(k) ? 'is-diff' : ''}"><button class="cell" data-rule="${k}" aria-label="Evidence for ${labelOf[t]} ${BUCKET_NAME[b]}${changed.has(k) ? ', differs from the live policy' : ''}">${ruleChip(r.route, r.evidence.status)}<span class="cell-ev num"><span class="${changed.has(k) ? 'hl-swipe' : ''}">n ${r.evidence.n} · low ${pct(r.evidence.wilsonLoLocal)}</span></span>${blocker(r, policy!.params) ? html`<span class="cell-why num">✕ ${blocker(r, policy!.params)}</span>` : ''}</button></td>`;
             })}</tr>`)}
           </tbody></table></div>
           <footer class="cert-sign">
@@ -112,7 +112,7 @@ const screen: Screen = {
                 <span class="dv-arrow" aria-hidden="true">→</span>
                 <div class="dv"><span class="caps">live in the router · ${active}</span><span class="dvn num ${liveChanged.size ? 'hl-swipe' : ''}">v${live.version}</span></div>
               </div>
-              <p class="muted" style="margin:14px 0 10px">${diff.changes.length ? html`<b class="num">${diff.changes.length}</b> rule${diff.changes.length === 1 ? '' : 's'} would change if you publish this certificate. They are highlighted above.` : 'The compiled policy matches the live rules.'}</p>
+              <p class="muted" style="margin:14px 0 10px">${diff.changes.length ? html`<b class="num">${diff.changes.length}</b> rule${diff.changes.length === 1 ? '' : 's'} would change if you publish this certificate. They are highlighted above.` : html`The rules compiled here are identical to the live v${live.version} rules${budget === 8000 ? ' at the 8 s budget' : ''}: nothing to ship.${budget === 8000 ? html` <button class="btn btn-sm btn-ghost" data-budget="30000">See the 30 s background policy</button>` : ''}`}</p>
               ${diff.changes.length ? html`<ul class="diff-list">${diff.changes.slice(0, 12).map(c => html`<li><span>${labelOf[c.taskType]} · ${c.lengthBucket}</span><span class="mono"><span class="hl-swipe">${c.from === 'LOCAL_FIRST' ? 'local' : 'cloud'} → ${c.to === 'LOCAL_FIRST' ? 'local' : 'cloud'}</span></span></li>`)}${diff.changes.length > 12 ? html`<li class="faint">+${diff.changes.length - 12} more</li>` : ''}</ul>` : ''}
               ${liveChanged.size ? html`<p class="live-note" role="status"><span class="hl">Remote Config update received.</span> ${liveChanged.size} rule${liveChanged.size === 1 ? '' : 's'} changed in the router without a reload.</p>` : ''}
               <ol class="steps">
@@ -127,7 +127,7 @@ const screen: Screen = {
 
         <section class="no-print" aria-labelledby="sav-t">
           <div class="sec"><h2 id="sav-t">Savings simulator</h2><span class="caps">estimate</span></div>
-          <p class="muted" style="margin-bottom:14px">Set your app's traffic mix. Lengths split 50% short, 35% medium, 15% long.</p>
+          <p class="muted" style="margin-bottom:14px">Set your app's traffic mix. Lengths split 50% short, 35% medium, 15% long.</p>${policy.rules.every(r => r.route !== 'LOCAL_FIRST') ? html`<p class="live-note"><span class="hl">Every rule is cloud-first at this budget, so nothing moves on-device and every saving below is zero.</span> ${budget === 8000 ? html`<button class="btn btn-sm" data-budget="30000">Simulate the 30 s background budget</button>` : ''}</p>` : ''}
           <div class="sliders">${TASK_TYPES.map(t => html`<label class="field"><span class="spread label"><span>${labelOf[t]}</span><span class="num" data-share-out="${t}">${shares[t]}</span></span><input type="range" min="0" max="40" value="${shares[t]}" data-share="${t}" aria-label="${labelOf[t]} share of traffic"></label>`)}</div>
           <div id="sav">${savings()}</div>
         </section>`.html;

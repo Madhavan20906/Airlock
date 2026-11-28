@@ -3,7 +3,7 @@ import { html, raw, fmtMs, pct } from '../ui/dom.js';
 import { icon } from '../ui/icons.js';
 import { glyph } from '../ui/glyphs.js';
 import { empty, labelOf } from '../ui/components.js';
-import { openEvidence, ruleChip } from '../ui/evidence.js';
+import { openEvidence, ruleChip, blocker } from '../ui/evidence.js';
 import { chooseData, dataToggle, getParam, type DataChoice } from './data.js';
 import { tandem } from '../services/tandem.js';
 import { aggregate, compilePolicy, TASK_TYPES, type CellStats, type TandemPolicy } from '@tandem/policy';
@@ -11,7 +11,8 @@ import { aggregate, compilePolicy, TASK_TYPES, type CellStats, type TandemPolicy
 const W = 300, H = 210, PAD = { l: 36, r: 14, t: 14, b: 28 };
 const X0 = Math.log10(150), X1 = Math.log10(40000);
 const x = (ms: number) => PAD.l + ((Math.log10(Math.min(40000, Math.max(150, ms))) - X0) / (X1 - X0)) * (W - PAD.l - PAD.r);
-const y = (p: number) => PAD.t + (1 - p) * (H - PAD.t - PAD.b);
+// 8% headroom above 100% so marks at the ceiling are not clipped by the frame
+const y = (p: number) => PAD.t + (1.08 - p) / 1.08 * (H - PAD.t - PAD.b);
 let swept = false; // the plotting sweep plays once per session
 
 function plate(type: string, cells: CellStats[], floor: number) {
@@ -34,12 +35,12 @@ function plate(type: string, cells: CellStats[], floor: number) {
     const b = c.lengthBucket, L = c.local, C = c.cloud;
     if (C.n && C.passRate !== null && C.p50Ms !== null) {
       const cx = x(C.p50Ms), cy = y(C.passRate);
-      marks.push(`<g class="pt cloud" style="--i:${i++}" tabindex="0" role="button" data-rule="${type}|${b}" data-tip="Cloud · length ${b}|pass ${pct(C.passRate)} · n ${C.n}|p50 ${fmtMs(C.p50Ms)}" aria-label="Cloud, length ${b}: pass ${pct(C.passRate)} of ${C.n}, median ${fmtMs(C.p50Ms)}. Open evidence."><circle cx="${cx}" cy="${cy}" r="5" class="ring"/><text x="${cx + 9}" y="${cy + 3.5}" class="pg-pt">${b}</text><circle cx="${cx}" cy="${cy}" r="13" class="hit"/></g>`);
+      marks.push(`<g class="pt cloud" style="--i:${i++}" tabindex="0" role="button" data-rule="${type}|${b}" data-tip="Cloud · length ${b}|pass ${pct(C.passRate)} · n ${C.n}|p50 ${fmtMs(C.p50Ms)}" aria-label="Cloud, length ${b}: pass ${pct(C.passRate)} of ${C.n}, median ${fmtMs(C.p50Ms)}. Open evidence."><circle cx="${cx}" cy="${cy}" r="5" class="ring"/><text x="${cx + 7}" y="${cy - 7}" class="pg-pt">${b}</text><circle cx="${cx}" cy="${cy}" r="13" class="hit"/></g>`);
     }
     if (L.n && L.passRate !== null && L.p50Ms !== null) {
       const cx = x(L.p50Ms), cy = y(L.passRate);
       const lo = y(L.wilsonLo ?? L.passRate), hi = y(L.wilsonHi ?? L.passRate);
-      marks.push(`<g class="pt local" style="--i:${i++}" tabindex="0" role="button" data-rule="${type}|${b}" data-tip="On-device · length ${b}|pass ${pct(L.passRate)} · n ${L.n}|95% ${pct(L.wilsonLo)}–${pct(L.wilsonHi)}|p50 ${fmtMs(L.p50Ms)}" aria-label="On-device, length ${b}: pass ${pct(L.passRate)} of ${L.n}, 95% interval ${pct(L.wilsonLo)} to ${pct(L.wilsonHi)}, median ${fmtMs(L.p50Ms)}. Open evidence."><path d="M${cx} ${hi}V${lo}M${cx - 4} ${hi}h8M${cx - 4} ${lo}h8" class="whisk"/><circle cx="${cx}" cy="${cy}" r="5.2" class="disc"/><text x="${cx - 9}" y="${cy + 3.5}" text-anchor="end" class="pg-pt">${b}</text><circle cx="${cx}" cy="${cy}" r="13" class="hit"/></g>`);
+      marks.push(`<g class="pt local" style="--i:${i++}" tabindex="0" role="button" data-rule="${type}|${b}" data-tip="On-device · length ${b}|pass ${pct(L.passRate)} · n ${L.n}|95% ${pct(L.wilsonLo)}–${pct(L.wilsonHi)}|p50 ${fmtMs(L.p50Ms)}" aria-label="On-device, length ${b}: pass ${pct(L.passRate)} of ${L.n}, 95% interval ${pct(L.wilsonLo)} to ${pct(L.wilsonHi)}, median ${fmtMs(L.p50Ms)}. Open evidence."><path d="M${cx} ${hi}V${lo}M${cx - 4} ${hi}h8M${cx - 4} ${lo}h8" class="whisk"/><circle cx="${cx}" cy="${cy}" r="5.2" class="disc"/><text x="${cx}" y="${lo + 11}" text-anchor="middle" class="pg-pt">${b}</text><circle cx="${cx}" cy="${cy}" r="13" class="hit"/></g>`);
     }
   }
   return raw(`<svg class="plate-svg" viewBox="0 0 ${W} ${H}" role="group" aria-label="${labelOf[type]}: pass rate against median latency, on-device and cloud, by input length">${g.join('')}${marks.join('')}</svg>`);
@@ -84,7 +85,7 @@ const screen: Screen = {
                 const lf = rs.filter(r => r.route === 'LOCAL_FIRST').length;
                 return html`<figure class="fplate plate"><figcaption><span class="ft">${labelOf[t]}</span>${ruleChip(lf ? 'LOCAL_FIRST' : 'CLOUD_FIRST')}</figcaption>
                   ${plate(t, cells, floor)}
-                  <div class="fmeta"><span>${lf} of 3 lengths local-first</span><button class="btn btn-sm btn-ghost" data-type="${t}">Evidence</button></div></figure>`;
+                  <div class="fmeta"><span>${lf} of 3 lengths local-first${(() => { const why = [...new Set(rs.map(r => blocker(r, policy!.params)?.split(' ')[0]).filter(Boolean))]; return why.length ? ` · held back by ${why.join(', ')}` : ''; })()}</span><button class="btn btn-sm btn-ghost" data-type="${t}">Evidence</button></div></figure>`;
               })}</div>`
             : html`<div class="table-wrap"><table class="t"><caption class="sr">Every cell's evidence</caption><thead><tr><th>Task</th><th>Len</th><th>Rule</th><th class="r">n</th><th class="r">Local pass</th><th class="r">95% low</th><th class="r">Cloud pass</th><th class="r">Local p50</th><th class="r">Cloud p50</th></tr></thead><tbody>
                 ${policy.rules.map(r => html`<tr class="clickable" data-rule="${r.taskType}|${r.lengthBucket}" tabindex="0"><td>${labelOf[r.taskType]}</td><td class="num">${r.lengthBucket}</td><td>${ruleChip(r.route, r.evidence.status)}</td><td class="num r">${r.evidence.n}</td><td class="num r">${pct(r.evidence.passLocal)}</td><td class="num r">${pct(r.evidence.wilsonLoLocal)}</td><td class="num r">${pct(r.evidence.passCloud)}</td><td class="num r">${fmtMs(r.evidence.p50Local)}</td><td class="num r">${fmtMs(r.evidence.p50Cloud)}</td></tr>`)}
