@@ -5,8 +5,11 @@ import type { RunResult } from '@tandem/policy';
 
 export type DataChoice = 'mine' | 'reference';
 
+/** Runs where a lane actually answered. A probe where nothing could run is not "your run". */
+export const usableRuns = () => tandem.myRun.filter(r => r.error !== 'unavailable').length;
+
 export function chooseData(pref?: string | null): { choice: DataChoice; results: RunResult[]; label: string; caption: string } {
-  const hasMine = tandem.myRun.length > 0;
+  const hasMine = usableRuns() > 0;
   const hasRef = Boolean(tandem.reference?.results.length);
   const choice: DataChoice = pref === 'reference' && hasRef ? 'reference' : pref === 'mine' && hasMine ? 'mine' : hasMine ? 'mine' : 'reference';
   if (choice === 'mine') {
@@ -20,7 +23,7 @@ export function chooseData(pref?: string | null): { choice: DataChoice; results:
 }
 
 export function dataToggle(choice: DataChoice) {
-  const hasMine = tandem.myRun.length > 0;
+  const hasMine = usableRuns() > 0;
   const hasRef = Boolean(tandem.reference?.results.length);
   return html`<div class="seg" role="group" aria-label="Measurements to show">
     <button data-data="mine" aria-pressed="${choice === 'mine'}" ${hasMine ? '' : 'disabled title="Run the probe first"'}>My run</button>

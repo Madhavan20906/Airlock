@@ -1,61 +1,13 @@
-import '@fontsource/ibm-plex-sans/400.css';
-import '@fontsource/ibm-plex-sans/500.css';
-import '@fontsource/ibm-plex-sans/600.css';
-import '@fontsource/ibm-plex-mono/400.css';
-import '@fontsource/ibm-plex-mono/500.css';
+import './styles/app.css';
+import './styles/screens.css';
+import './styles/slips-notes.css';
+import './styles/plates.css';
+import './styles/misc.css';
+import './styles/landing.css';
+import { initTheme, toggleTheme } from './ui/theme.js';
 
-const reveals: Element[] = [];
-const io = new IntersectionObserver((entries) => {
-  for (const e of entries) {
-    if (e.isIntersecting) { e.target.classList.add('in-view'); io.unobserve(e.target); }
-  }
-}, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
-
-let stagger = 0;
-document.querySelectorAll('section, .card, .stat, .lane, .compare__row, .faq-q, .faq-a').forEach((el) => {
-  el.classList.add('reveal');
-  const parent = el.closest('.stats, .faq, .compare, .duo-cards, .guard-demo, .lanes');
-  if (parent) { (el as HTMLElement).style.setProperty('--d', `${stagger * 80}ms`); stagger++; }
-  reveals.push(el);
-  io.observe(el);
-});
-
-setTimeout(() => { for (const el of reveals) el.classList.add('in-view'); }, 1500);
-
-const counterIo = new IntersectionObserver((entries) => {
-  for (const e of entries) {
-    if (!e.isIntersecting) continue;
-    counterIo.unobserve(e.target);
-    const el = e.target as HTMLElement;
-    const text = el.textContent || '';
-    const match = text.match(/^([\d.]+)(%|s| ms)?/);
-    if (!match) continue;
-    const end = parseFloat(match[1]);
-    const suffix = match[2] || '';
-    const rest = text.slice(match[0].length);
-    const duration = 1400;
-    const start = performance.now();
-    const step = (now: number) => {
-      const t = Math.min((now - start) / duration, 1);
-      const ease = 1 - Math.pow(1 - t, 4);
-      const val = end * ease;
-      el.textContent = (Number.isInteger(end) ? Math.round(val).toString() : val.toFixed(1)) + suffix + rest;
-      if (t < 1) requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
-  }
-}, { threshold: 0.5 });
-
-document.querySelectorAll('#results .t-stat').forEach(el => counterIo.observe(el));
-
-document.querySelectorAll('.hero [data-step]').forEach((el, i) => {
-  (el as HTMLElement).style.animationDelay = `${0.6 + i * 0.5}s`;
-});
-
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Tab') document.documentElement.classList.add('using-keyboard');
-});
-document.addEventListener('mousedown', () => document.documentElement.classList.remove('using-keyboard'));
+initTheme();
+document.addEventListener('click', e => { if ((e.target as Element).closest('[data-theme-toggle]')) toggleTheme(); });
 
 // ── Live Guard scanner ───────────────────────────────────────────────────────
 // Lightweight standalone detectors — no dependency on @tandem/guard bundle
@@ -94,103 +46,26 @@ function scanText(text: string) {
     const tag = `${r.name}_${counters[r.name]}`;
     found.push(r.name);
     out += escHtml(text.slice(pos, r.start));
-    out += `<mark class="gtok">${tag}</mark>`;
+    out += `<mark>${tag}</mark>`;
     pos = r.end;
   }
   out += escHtml(text.slice(pos));
   return { html: out, found };
 }
 
-const guardInput  = document.getElementById('guard-input')  as HTMLTextAreaElement | null;
-const guardOut    = document.getElementById('guard-out')    as HTMLElement | null;
-const guardTags   = document.getElementById('guard-tags')   as HTMLElement | null;
-
+const guardInput = document.getElementById('guard-input') as HTMLTextAreaElement | null;
+const guardOut = document.getElementById('guard-out') as HTMLElement | null;
+const guardTags = document.getElementById('guard-tags') as HTMLElement | null;
 if (guardInput && guardOut) {
-  const idle = `<span class="guard-scanner__idle"><span class="guard-scanner__dot"></span>Waiting for input…</span>`;
-  let scanTid = 0;
+  let tid = 0;
   guardInput.addEventListener('input', () => {
-    clearTimeout(scanTid);
-    scanTid = window.setTimeout(() => {
+    clearTimeout(tid);
+    tid = window.setTimeout(() => {
       const text = guardInput.value.trim();
-      if (!text) { guardOut.innerHTML = idle; if (guardTags) guardTags.innerHTML = ''; return; }
-      const { html: highlighted, found } = scanText(text);
-      guardOut.innerHTML = `<pre class="guard-scanner__pre">${highlighted}</pre>`;
-      if (guardTags) {
-        const uniq = [...new Set(found)];
-        guardTags.innerHTML = uniq.length
-          ? uniq.map(n => `<span class="guard-tag">${n}</span>`).join('')
-          : `<span class="guard-tag guard-tag--clean">No identifiers found</span>`;
-      }
+      if (!text) { guardOut.innerHTML = '<span class="meta">Waiting for input.</span>'; if (guardTags) guardTags.innerHTML = ''; return; }
+      const { html, found } = scanText(text);
+      guardOut.innerHTML = '<pre class="lp-code">' + html + '</pre>';
+      if (guardTags) guardTags.innerHTML = [...new Set(found)].map(n => '<span class="chip">' + n + '</span>').join('') || '<span class="meta">No identifiers found by the preview patterns.</span>';
     }, 120);
   });
 }
-
-// ── Probe row live cycling ───────────────────────────────────────────────────
-const probeWin  = document.querySelector<HTMLElement>('.ui-win[data-ui="window"]');
-const probeRows = Array.from(document.querySelectorAll<HTMLElement>('.ui-win__row[data-row]'));
-
-if (probeWin && probeRows.length) {
-  const finalStates = probeRows.map(row => {
-    const st = row.querySelector<HTMLElement>('[data-st]');
-    return { cls: st?.className ?? 'ui-win__st', txt: st?.textContent ?? 'Queued' };
-  });
-
-  let runIdx = 0;
-  let probeTimer = 0;
-
-  const stepRow = () => {
-    probeRows.forEach((row, i) => {
-      const st = row.querySelector<HTMLElement>('[data-st]');
-      row.classList.remove('is-run');
-      if (!st) return;
-      if (i < runIdx) {
-        st.className = finalStates[i].cls;
-        st.textContent = finalStates[i].txt;
-      } else if (i === runIdx) {
-        st.className = 'ui-win__st is-work';
-        st.textContent = 'Running…';
-        row.classList.add('is-run');
-      } else {
-        st.className = 'ui-win__st';
-        st.textContent = 'Queued';
-      }
-    });
-    runIdx = (runIdx + 1) % probeRows.length;
-  };
-
-  const probeSection = document.getElementById('probe');
-  if (probeSection) {
-    new IntersectionObserver(entries => {
-      for (const e of entries) {
-        if (e.isIntersecting) {
-          if (!probeTimer) { stepRow(); probeTimer = window.setInterval(stepRow, 1300); }
-        } else {
-          clearInterval(probeTimer); probeTimer = 0; runIdx = 0;
-          probeRows.forEach((row, i) => {
-            const st = row.querySelector<HTMLElement>('[data-st]');
-            row.classList.remove('is-run');
-            if (st) { st.className = finalStates[i].cls; st.textContent = finalStates[i].txt; }
-          });
-        }
-      }
-    }, { threshold: 0.2 }).observe(probeSection);
-  }
-}
-
-const nav = document.querySelector('.nav') as HTMLElement;
-if (nav) {
-  let last = 0;
-  window.addEventListener('scroll', () => {
-    const y = window.scrollY;
-    nav.classList.toggle('nav--scrolled', y > 60);
-    nav.classList.toggle('nav--hidden', y > 400 && y > last);
-    last = y;
-  }, { passive: true });
-}
-
-document.querySelectorAll<HTMLAnchorElement>('.nav__link[href^="#"]').forEach(a => {
-  a.addEventListener('click', (e) => {
-    const target = document.querySelector(a.getAttribute('href')!);
-    if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
-  });
-});
